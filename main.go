@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"reflect"
 )
 
 //
@@ -51,19 +52,13 @@ func GetGzText(filePath string) []byte {
 	defer file.Close()
 	defer gz.Close()
 
-	data, err := ioutil.ReadAll(gz)
+	fullStr, err := ioutil.ReadAll(gz)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return data
-}
-
-func GetJsonMap(bytes []byte) map[string]interface{} {
-	var result map[string]interface{}
-	json.Unmarshal(bytes, &result)
-	return result
+	return fullStr
 }
 
 func main() {
@@ -74,22 +69,11 @@ func main() {
 	dataBytes := GetGzText(path + filename)
 
 	var jsonMap map[string]interface{}
-	jsonMap = GetJsonMap(dataBytes)
+	json.Unmarshal(dataBytes, &jsonMap)
 
-	fmt.Println(jsonMap["achievement"])
-	/*
-		scanner := bufio.NewScanner(gz)
-		scanner.Split(bufio.ScanLines)
+	fmt.Println("Number of JSON objects : ", len(jsonMap))
 
-		for scanner.Scan() {
-			// Get Bytes and display the byte.
-			b := scanner.Bytes()
-			fmt.Printf("%v = %v = %v\n", b, b[0], string(b))
-		}
-
-
-			var result map[string]interface{}
-			data.Unmarshal(scanner.Bytes(), &result)
-
-			fmt.Println(result["achievement"])*/
+	for element := range jsonMap {
+		fmt.Println(reflect.TypeOf(element), reflect.ValueOf(element))
+	}
 }
