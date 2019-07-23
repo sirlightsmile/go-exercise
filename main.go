@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"reflect"
 )
 
 //
@@ -71,9 +70,30 @@ func main() {
 	var jsonMap map[string]interface{}
 	json.Unmarshal(dataBytes, &jsonMap)
 
-	fmt.Println("Number of JSON objects : ", len(jsonMap))
+	intCount := 0
+	stringCount := 0
+	nullCount := 0
 
-	for element := range jsonMap {
-		fmt.Println(reflect.TypeOf(element), reflect.ValueOf(element))
+	for element, value := range jsonMap {
+		switch value.(type) {
+		case float64:
+			intCount++
+			fmt.Println(element, "is Int")
+		case string:
+			stringCount++
+			fmt.Println(element, "is String")
+		case []interface{}:
+			nullCount++
+			fmt.Println(element, "is Array")
+		default:
+			nullCount++
+			fmt.Println(element, "is Object I think.....")
+		}
 	}
+
+	fmt.Println("Strings values ", stringCount)
+
+	fmt.Println("Numeric values ", intCount)
+
+	fmt.Println("Null value ", nullCount)
 }
