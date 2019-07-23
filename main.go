@@ -90,8 +90,13 @@ func main() {
 		case string:
 			stringCount++
 		case []interface{}:
-			nullCount++
+			//TODO: what now...
+			fmt.Println("This is an array:")
+			for i, u := range jsonMap[element].([]interface{}) {
+				fmt.Println(i, u)
+			}
 		default:
+			//TODO: this is object... what now...
 			nullCount++
 		}
 	}
