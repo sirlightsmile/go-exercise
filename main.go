@@ -1,5 +1,13 @@
 package main
 
+import (
+	"bufio"
+	"compress/gzip"
+	"fmt"
+	"log"
+	"os"
+)
+
 //
 // GameData analyzer
 //
@@ -25,9 +33,35 @@ package main
 // Null values: 1234
 //
 
+func Check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
 
 func main() {
 
-	//! TODO: exercise 01
+	path := "data/"
+	filename := "GameData.json.gz"
+	file, err := os.Open(path + filename)
 
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	gz, err := gzip.NewReader(file)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer file.Close()
+	defer gz.Close()
+
+	scanner := bufio.NewScanner(gz)
+	scanner.Split(bufio.ScanWords)
+
+	for scanner.Scan() {
+		fmt.Println(scanner.Text())
+	}
 }
