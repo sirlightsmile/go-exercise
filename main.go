@@ -42,6 +42,13 @@ func GetGzText(filePath string) []byte {
 		log.Fatal(err)
 	}
 
+	fileStat, err := file.Stat()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Compressed File size : ", fileStat.Size())
+
 	gz, err := gzip.NewReader(file)
 
 	if err != nil {
@@ -56,6 +63,8 @@ func GetGzText(filePath string) []byte {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Println("Decompressed File size : ", len(fullStr))
 
 	return fullStr
 }
@@ -74,22 +83,20 @@ func main() {
 	stringCount := 0
 	nullCount := 0
 
-	for element, value := range jsonMap {
-		switch value.(type) {
+	for element := range jsonMap {
+		switch jsonMap[element].(type) {
 		case float64:
 			intCount++
-			fmt.Println(element, "is Int")
 		case string:
 			stringCount++
-			fmt.Println(element, "is String")
 		case []interface{}:
 			nullCount++
-			fmt.Println(element, "is Array")
 		default:
 			nullCount++
-			fmt.Println(element, "is Object I think.....")
 		}
 	}
+
+	fmt.Println("Table count ", len(jsonMap))
 
 	fmt.Println("Strings values ", stringCount)
 
