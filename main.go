@@ -1,17 +1,18 @@
 package main
 
 import (
-	"bufio"
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 )
 
 //
-// GameData analyzer
+// Gamedata analyzer
 //
-// create program that open game data file 'data/GameData.json.gz', parse and analyze the content
+// create program that open game data file 'data/Gamedata.data.gz', parse and analyze the content
 // the program should print:
 //
 // 1) compressed file size in bytes
@@ -33,17 +34,9 @@ import (
 // Null values: 1234
 //
 
-func Check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
+func GetGzText(filePath string) []byte {
 
-func main() {
-
-	path := "data/"
-	filename := "GameData.json.gz"
-	file, err := os.Open(path + filename)
+	file, err := os.Open(filePath)
 
 	if err != nil {
 		log.Fatal(err)
@@ -58,10 +51,45 @@ func main() {
 	defer file.Close()
 	defer gz.Close()
 
-	scanner := bufio.NewScanner(gz)
-	scanner.Split(bufio.ScanWords)
+	data, err := ioutil.ReadAll(gz)
 
-	for scanner.Scan() {
-		fmt.Println(scanner.Text())
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	return data
+}
+
+func GetJsonMap(bytes []byte) map[string]interface{} {
+	var result map[string]interface{}
+	json.Unmarshal(bytes, &result)
+	return result
+}
+
+func main() {
+
+	path := "data/"
+	filename := "GameData.json.gz"
+
+	dataBytes := GetGzText(path + filename)
+
+	var jsonMap map[string]interface{}
+	jsonMap = GetJsonMap(dataBytes)
+
+	fmt.Println(jsonMap["achievement"])
+	/*
+		scanner := bufio.NewScanner(gz)
+		scanner.Split(bufio.ScanLines)
+
+		for scanner.Scan() {
+			// Get Bytes and display the byte.
+			b := scanner.Bytes()
+			fmt.Printf("%v = %v = %v\n", b, b[0], string(b))
+		}
+
+
+			var result map[string]interface{}
+			data.Unmarshal(scanner.Bytes(), &result)
+
+			fmt.Println(result["achievement"])*/
 }
