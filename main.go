@@ -40,16 +40,8 @@ func main() {
 
 	dataBytes := GetGzText(gameDataPath)
 
-	var jsonData interface{}
-	err := json.Unmarshal(dataBytes, &jsonData)
-
-	jsonMap, ok := jsonData.(map[string]interface{})
-
-	if !ok {
-		fmt.Println("cannot convert the JSON objects")
-		os.Exit(1)
-	}
-
+	var jsonMap map[string]interface{}
+	err := json.Unmarshal(dataBytes, &jsonMap)
 	LogErrorHandler(err)
 
 	intCount := 0
@@ -61,43 +53,36 @@ func main() {
 	}
 
 	fmt.Println("GameData Table count ", len(jsonMap))
-
 	fmt.Println("Strings values ", stringCount)
-
 	fmt.Println("Numeric values ", intCount)
-
 	fmt.Println("Null value ", nilCount)
 }
 
 func GetGzText(filePath string) []byte {
 
 	file, err := os.Open(filePath)
-
 	LogErrorHandler(err)
 
 	fileStat, err := file.Stat()
-
 	LogErrorHandler(err)
 
-	fmt.Println("Compressed File size : ", fileStat.Size())
-
 	gz, err := gzip.NewReader(file)
-
 	LogErrorHandler(err)
 
 	defer file.Close()
 	defer gz.Close()
 
 	fullStr, err := ioutil.ReadAll(gz)
-
 	LogErrorHandler(err)
 
+	fmt.Println("Compressed File size : ", fileStat.Size())
 	fmt.Println("Decompressed File size : ", len(fullStr))
 
 	return fullStr
 }
 
 func LogErrorHandler(err error) {
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -122,7 +107,6 @@ func CountByType(obj interface{}, intCount *int, stringCount *int, nilCount *int
 		}
 
 	case map[string]interface{}:
-
 		objMap := obj.(map[string]interface{})
 		for element := range objMap {
 			CountByType(objMap[element], &*intCount, &*stringCount, &*nilCount)
