@@ -34,6 +34,34 @@ import (
 // Numeric values: 1234
 // Null values: 1234
 //
+const gameDataPath = "data/GameData.json.gz"
+
+func main() {
+
+	dataBytes := GetGzText(gameDataPath)
+
+	var jsonData interface{}
+	err := json.Unmarshal(dataBytes, &jsonData)
+
+	jsonMap, ok := jsonData.(map[string]interface{})
+
+	if !ok {
+		fmt.Println("cannot convert the JSON objects")
+		os.Exit(1)
+	}
+
+	LogErrorHandler(err)
+
+	intCount, stringCount, nilCount := CountMapType(jsonMap)
+
+	fmt.Println("Table count ", len(jsonMap))
+
+	fmt.Println("Strings values ", stringCount)
+
+	fmt.Println("Numeric values ", intCount)
+
+	fmt.Println("Null value ", nilCount)
+}
 
 func GetGzText(filePath string) []byte {
 
@@ -67,36 +95,6 @@ func LogErrorHandler(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func main() {
-
-	path := "data/"
-	filename := "GameData.json.gz"
-
-	dataBytes := GetGzText(path + filename)
-
-	var jsonData interface{}
-	err := json.Unmarshal(dataBytes, &jsonData)
-
-	jsonMap, ok := jsonData.(map[string]interface{})
-
-	if !ok {
-		fmt.Println("cannot convert the JSON objects")
-		os.Exit(1)
-	}
-
-	LogErrorHandler(err)
-
-	intCount, stringCount, nilCount := CountMapType(jsonMap)
-
-	fmt.Println("Table count ", len(jsonMap))
-
-	fmt.Println("Strings values ", stringCount)
-
-	fmt.Println("Numeric values ", intCount)
-
-	fmt.Println("Null value ", nilCount)
 }
 
 func CountMapType(jsonMap map[string]interface{}) (int, int, int) {
