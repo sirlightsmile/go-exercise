@@ -52,7 +52,13 @@ func main() {
 
 	LogErrorHandler(err)
 
-	intCount, stringCount, nilCount := CountMapType(jsonMap)
+	intCount := 0
+	stringCount := 0
+	nilCount := 0
+
+	for element := range jsonMap {
+		CountType(jsonMap[element], &intCount, &stringCount, &nilCount)
+	}
 
 	fmt.Println("Table count ", len(jsonMap))
 
@@ -97,78 +103,32 @@ func LogErrorHandler(err error) {
 	}
 }
 
-func CountMapType(jsonMap map[string]interface{}) (int, int, int) {
+func CountType(obj interface{}, intCount *int, stringCount *int, nilCount *int) {
 
-	intCount := 0
-	stringCount := 0
-	nilCount := 0
+	switch obj.(type) {
+	case float64, int:
+		*intCount++
 
-	for element := range jsonMap {
-		switch jsonMap[element].(type) {
-		case float64:
-			intCount++
+	case string:
+		*stringCount++
 
-		case string:
-			stringCount++
+	case nil:
+		*nilCount++
 
-		case nil:
-			nilCount++
-
-		case []interface{}:
-			intPlus, stringPlus, nilPlus := CountInterfaceType(jsonMap[element].([]interface{}))
-			intCount += intPlus
-			stringCount += stringPlus
-			nilCount += nilPlus
-
-		case map[string]interface{}:
-
-			intPlus, stringPlus, nilPlus := CountMapType(jsonMap[element].(map[string]interface{}))
-			intCount += intPlus
-			stringCount += stringPlus
-			nilCount += nilPlus
-
-		default:
-			fmt.Println("I don't know how to handler it.", reflect.TypeOf(jsonMap[element]))
+	case []interface{}:
+		objSlice := obj.([]interface{})
+		for i := range objSlice {
+			CountType(objSlice[i], &*intCount, &*stringCount, &*nilCount)
 		}
-	}
 
-	return intCount, stringCount, nilCount
-}
+	case map[string]interface{}:
 
-func CountInterfaceType(jsonMap []interface{}) (int, int, int) {
-
-	intCount := 0
-	stringCount := 0
-	nilCount := 0
-
-	for element := range jsonMap {
-		switch jsonMap[element].(type) {
-		case float64:
-			intCount++
-
-		case string:
-			stringCount++
-
-		case nil:
-			nilCount++
-
-		case []interface{}:
-			intPlus, stringPlus, nilPlus := CountInterfaceType(jsonMap[element].([]interface{}))
-			intCount += intPlus
-			stringCount += stringPlus
-			nilCount += nilPlus
-
-		case map[string]interface{}:
-
-			intPlus, stringPlus, nilPlus := CountMapType(jsonMap[element].(map[string]interface{}))
-			intCount += intPlus
-			stringCount += stringPlus
-			nilCount += nilPlus
-
-		default:
-			fmt.Println("I don't know how to handler it.", reflect.TypeOf(jsonMap[element]))
+		objMap := obj.(map[string]interface{})
+		for element := range objMap {
+			CountType(objMap[element], &*intCount, &*stringCount, &*nilCount)
 		}
-	}
 
-	return intCount, stringCount, nilCount
+	default:
+		fmt.Println("I don't know how to handler it.", reflect.TypeOf(obj))
+	}
 }
