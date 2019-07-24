@@ -57,7 +57,7 @@ func main() {
 	nilCount := 0
 
 	for element := range jsonMap {
-		CountType(jsonMap[element], &intCount, &stringCount, &nilCount)
+		CountByType(jsonMap[element], &intCount, &stringCount, &nilCount)
 	}
 
 	fmt.Println("Table count ", len(jsonMap))
@@ -103,7 +103,7 @@ func LogErrorHandler(err error) {
 	}
 }
 
-func CountType(obj interface{}, intCount *int, stringCount *int, nilCount *int) {
+func CountByType(obj interface{}, intCount *int, stringCount *int, nilCount *int) {
 
 	switch obj.(type) {
 	case float64, int:
@@ -118,14 +118,14 @@ func CountType(obj interface{}, intCount *int, stringCount *int, nilCount *int) 
 	case []interface{}:
 		objSlice := obj.([]interface{})
 		for i := range objSlice {
-			CountType(objSlice[i], &*intCount, &*stringCount, &*nilCount)
+			CountByType(objSlice[i], &*intCount, &*stringCount, &*nilCount)
 		}
 
 	case map[string]interface{}:
 
 		objMap := obj.(map[string]interface{})
 		for element := range objMap {
-			CountType(objMap[element], &*intCount, &*stringCount, &*nilCount)
+			CountByType(objMap[element], &*intCount, &*stringCount, &*nilCount)
 		}
 
 	default:
