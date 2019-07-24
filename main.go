@@ -60,7 +60,7 @@ func main() {
 		CountByType(jsonMap[element], &intCount, &stringCount, &nilCount)
 	}
 
-	fmt.Println("Table count ", len(jsonMap))
+	fmt.Println("GameData Table count ", len(jsonMap))
 
 	fmt.Println("Strings values ", stringCount)
 
@@ -129,6 +129,6 @@ func CountByType(obj interface{}, intCount *int, stringCount *int, nilCount *int
 		}
 
 	default:
-		fmt.Println("I don't know how to handler it.", reflect.TypeOf(obj))
+		fmt.Println("Unhandler type. ", reflect.TypeOf(obj))
 	}
 }
