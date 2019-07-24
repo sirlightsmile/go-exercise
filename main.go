@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"reflect"
 )
 
 //
@@ -38,35 +39,34 @@ func GetGzText(filePath string) []byte {
 
 	file, err := os.Open(filePath)
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	LogErrorHandler(err)
 
 	fileStat, err := file.Stat()
-	if err != nil {
-		log.Fatal(err)
-	}
+
+	LogErrorHandler(err)
 
 	fmt.Println("Compressed File size : ", fileStat.Size())
 
 	gz, err := gzip.NewReader(file)
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	LogErrorHandler(err)
 
 	defer file.Close()
 	defer gz.Close()
 
 	fullStr, err := ioutil.ReadAll(gz)
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	LogErrorHandler(err)
 
 	fmt.Println("Decompressed File size : ", len(fullStr))
 
 	return fullStr
+}
+
+func LogErrorHandler(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func main() {
@@ -76,30 +76,19 @@ func main() {
 
 	dataBytes := GetGzText(path + filename)
 
-	var jsonMap map[string]interface{}
-	json.Unmarshal(dataBytes, &jsonMap)
+	var jsonData interface{}
+	err := json.Unmarshal(dataBytes, &jsonData)
 
-	intCount := 0
-	stringCount := 0
-	nullCount := 0
+	jsonMap, ok := jsonData.(map[string]interface{})
 
-	for element := range jsonMap {
-		switch jsonMap[element].(type) {
-		case float64:
-			intCount++
-		case string:
-			stringCount++
-		case []interface{}:
-			//TODO: what now...
-			fmt.Println("This is an array:")
-			for i, u := range jsonMap[element].([]interface{}) {
-				fmt.Println(i, u)
-			}
-		default:
-			//TODO: this is object... what now...
-			nullCount++
-		}
+	if !ok {
+		fmt.Println("cannot convert the JSON objects")
+		os.Exit(1)
 	}
+
+	LogErrorHandler(err)
+
+	intCount, stringCount, nilCount := CountMapType(jsonMap)
 
 	fmt.Println("Table count ", len(jsonMap))
 
@@ -107,5 +96,81 @@ func main() {
 
 	fmt.Println("Numeric values ", intCount)
 
-	fmt.Println("Null value ", nullCount)
+	fmt.Println("Null value ", nilCount)
+}
+
+func CountMapType(jsonMap map[string]interface{}) (int, int, int) {
+
+	intCount := 0
+	stringCount := 0
+	nilCount := 0
+
+	for element := range jsonMap {
+		switch jsonMap[element].(type) {
+		case float64:
+			intCount++
+
+		case string:
+			stringCount++
+
+		case nil:
+			nilCount++
+
+		case []interface{}:
+			intPlus, stringPlus, nilPlus := CountInterfaceType(jsonMap[element].([]interface{}))
+			intCount += intPlus
+			stringCount += stringPlus
+			nilCount += nilPlus
+
+		case map[string]interface{}:
+
+			intPlus, stringPlus, nilPlus := CountMapType(jsonMap[element].(map[string]interface{}))
+			intCount += intPlus
+			stringCount += stringPlus
+			nilCount += nilPlus
+
+		default:
+			fmt.Println("I don't know how to handler it.", reflect.TypeOf(jsonMap[element]))
+		}
+	}
+
+	return intCount, stringCount, nilCount
+}
+
+func CountInterfaceType(jsonMap []interface{}) (int, int, int) {
+
+	intCount := 0
+	stringCount := 0
+	nilCount := 0
+
+	for element := range jsonMap {
+		switch jsonMap[element].(type) {
+		case float64:
+			intCount++
+
+		case string:
+			stringCount++
+
+		case nil:
+			nilCount++
+
+		case []interface{}:
+			intPlus, stringPlus, nilPlus := CountInterfaceType(jsonMap[element].([]interface{}))
+			intCount += intPlus
+			stringCount += stringPlus
+			nilCount += nilPlus
+
+		case map[string]interface{}:
+
+			intPlus, stringPlus, nilPlus := CountMapType(jsonMap[element].(map[string]interface{}))
+			intCount += intPlus
+			stringCount += stringPlus
+			nilCount += nilPlus
+
+		default:
+			fmt.Println("I don't know how to handler it.", reflect.TypeOf(jsonMap[element]))
+		}
+	}
+
+	return intCount, stringCount, nilCount
 }
