@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"strconv"
 )
 
 //
@@ -52,7 +53,7 @@ func main() {
 		CountByType(jsonMap[element], &intCount, &stringCount, &nilCount)
 	}
 
-	fmt.Println("GameData Table count ", len(jsonMap))
+	fmt.Println("Table count ", len(jsonMap))
 	fmt.Println("Strings values ", stringCount)
 	fmt.Println("Numeric values ", intCount)
 	fmt.Println("Null value ", nilCount)
@@ -91,11 +92,15 @@ func LogErrorHandler(err error) {
 func CountByType(obj interface{}, intCount *int, stringCount *int, nilCount *int) {
 
 	switch obj.(type) {
-	case float64, int:
+	case float64:
 		*intCount++
 
 	case string:
-		*stringCount++
+		if _, err := strconv.ParseFloat(obj.(string), 64); err== nil{
+			*intCount++
+		}else{
+			*stringCount++
+		}
 
 	case nil:
 		*nilCount++
