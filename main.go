@@ -53,10 +53,7 @@ func main() {
 		CountByType(jsonMap[element], &intCount, &stringCount, &nilCount)
 	}
 
-	fmt.Println("Table count ", len(jsonMap))
-	fmt.Println("Strings values ", stringCount)
-	fmt.Println("Numeric values ", intCount)
-	fmt.Println("Null value ", nilCount)
+	fmt.Printf("Table count %v\nStrings values %v\nNumeric values %v\nNull values %v", len(jsonMap),stringCount,intCount,nilCount)
 }
 
 func GetGzText(filePath string) []byte {
