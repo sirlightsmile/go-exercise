@@ -103,13 +103,13 @@ func CountByType(obj interface{}, intCount *int, stringCount *int, nilCount *int
 	case []interface{}:
 		objSlice := obj.([]interface{})
 		for i := range objSlice {
-			CountByType(objSlice[i], &*intCount, &*stringCount, &*nilCount)
+			CountByType(objSlice[i], intCount, stringCount, nilCount)
 		}
 
 	case map[string]interface{}:
 		objMap := obj.(map[string]interface{})
 		for element := range objMap {
-			CountByType(objMap[element], &*intCount, &*stringCount, &*nilCount)
+			CountByType(objMap[element], intCount, stringCount, nilCount)
 		}
 
 	default:
