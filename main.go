@@ -1,33 +1,47 @@
 package main
 
 //
-// GameData analyzer
+// Address package
 //
-// create program that open game data file 'data/GameData.json.gz', parse and analyze the content
-// the program should print:
+// Create 'address' package for lookup and validation of Thai address over a database
+// this database is commonly used in e-commerce businesses in Thailand for address validation
 //
-// 1) compressed file size in bytes
-// 2) uncompressed size in bytes
-// 3) number of game data tables
-// 4) number of string values
-// 5) number of numerical values (Note: numerical value can be 1.0, 5 or "10" or '5.45')
-// 6) number of null values
+// Requirements:
+//
+// 1) package name must be called 'address'
 //
 //
-// example output:
+// 2) There is a database (SQLite) in folder 'data/th_address.db'
+//	- access this database and use it for all queries
 //
 //
-// Compressed size: 1234
-// Uncompressed size: 1234
-// Tables: 1234
-// Strings values: 1234
-// Numeric values: 1234
-// Null values: 1234
+// 3) define structure Address in the package with these properties:
+//		- subDistrict (districts table)
+//		- district (amphures table)
+//		- province (provinces table)
+//		- zipcode (zipcodes table)
 //
-
+//
+// 4) create these functions inside the package
+//
+//	- NewAddress(subDistrict, district, province, zipcode) - return new Address instance
+//	- GetProvinces() - return list of all provinces
+//  - GetDistrictsByProvince(province) - return list of all districts in a specified province
+//  - GetZipcodesByDistrict(district) - return list of all zipcodes in a specified district
+//
+//  - create Address method:
+//	- Validate() - return true if the address is valid
+//
+//
+// 6) create test file in the same package ('address_test.go')
+//  - write test cases for all methods above
+//  - test coverage must be 100% (go test -cover)
+//  - all tests must pass
+//
+//
+// Additional notes: Use only English names, address validation is NOT case sensitive
+//
+//
 
 func main() {
-
-	//! TODO: exercise 01
-
 }
