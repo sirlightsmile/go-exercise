@@ -10,35 +10,30 @@ package address
 
 import (
 	"database/sql"
-	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type Address struct {
-	SubDistrict string
-	District    string
-	Province    string
-	Zipcodes    string
-}
-
 func NewAddress(subDistrict string, district string, province string, zipcode string) {
 }
 
-func GetProvinces() {
+func GetProvinces() []Province {
 	database, err := sql.Open("sqlite3", "data/th_address.db")
 	checkErr(err)
 	defer database.Close()
 
-	rows, err := database.Query("SELECT PROVINCE_NAME_ENG FROM provinces")
+	rows, err := database.Query("SELECT * FROM provinces")
 	checkErr(err)
 
+	var provinces []Province
 	for rows.Next() {
-		var name string
-		err = rows.Scan(&name)
+		var province Province
+		err = rows.Scan(&province.ProvinceID, &province.ProvinceCode, &province.ProvinceName, &province.ProvinceNameEng, &province.GeoID)
 		checkErr(err)
-		fmt.Println(name)
+		provinces = append(provinces, province)
 	}
+
+	return provinces
 }
 
 func checkErr(err error) {

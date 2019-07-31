@@ -44,9 +44,14 @@ package main
 //
 
 import (
+	"fmt"
+
 	"./address"
 )
 
 func main() {
-	address.GetProvinces()
+	province := address.GetProvinces()
+	for _, element := range province {
+		fmt.Println(element.ProvinceName)
+	}
 }
