@@ -43,5 +43,10 @@ package main
 //
 //
 
+import (
+	"./address"
+)
+
 func main() {
+	address.GetProvinces()
 }
