@@ -52,6 +52,6 @@ import (
 func main() {
 	province := address.GetProvinces()
 	for _, element := range province {
-		fmt.Println(element.ProvinceName)
+		fmt.Println(element.Name)
 	}
 }

@@ -28,12 +28,29 @@ func GetProvinces() []Province {
 	var provinces []Province
 	for rows.Next() {
 		var province Province
-		err = rows.Scan(&province.ProvinceID, &province.ProvinceCode, &province.ProvinceName, &province.ProvinceNameEng, &province.GeoID)
+		err = rows.Scan(&province.ID, &province.Code, &province.Name, &province.NameEng, &province.GeoID)
 		checkErr(err)
 		provinces = append(provinces, province)
 	}
+	rows.Close()
 
 	return provinces
+}
+
+func GetDistrictsByProvince(province string) Amphur {
+
+	database, err := sql.Open("sqlite3", "data/th_address.db")
+	checkErr(err)
+	defer database.Close()
+
+	rows, err := database.Query("SELECT PROVINCE_ID FROM provinces WHERE PROVINCE_NAME IS ", province)
+	checkErr(err)
+
+	for rows.Next() {
+	}
+
+	var district Amphur
+	return district
 }
 
 func checkErr(err error) {

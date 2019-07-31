@@ -1,41 +1,46 @@
 package address
 
+// 	subDistrict (districts table)
+//		- district (amphures table)
+//		- province (provinces table)
+//		- zipcode (zipcodes table)
+
 type Address struct {
-	SubDistrict District
+	SubDistrict SubDistrict
 	District    Amphur
 	Province    Province
 	ZipCodes    ZipCode
 }
 
 type Amphur struct {
-	AmphurID      int
-	AmphurCode    string
-	AmphurName    string
-	AmphurNameEng string
-	ProvinceID    int
-	GeoID         int
+	ID         int
+	Code       string
+	Name       string
+	NameEng    string
+	ProvinceID int
+	GeoID      int
 }
 
-type District struct {
-	DistrictID      int
-	DistrictCode    string
-	DistrictName    string
-	DistrictNameEng string
-	AmphurID        int
-	ProvinceID      int
-	GeoID           int
+type SubDistrict struct {
+	ID         int
+	Code       string
+	Name       string
+	NameEng    string
+	AmphurID   int
+	ProvinceID int
+	GeoID      int
 }
 
 type Province struct {
-	ProvinceID      int
-	ProvinceCode    int
-	ProvinceName    string
-	ProvinceNameEng string
-	GeoID           int
+	ID      int
+	Code    int
+	Name    string
+	NameEng string
+	GeoID   int
 }
 
 type ZipCode struct {
-	ID           int
-	DistrictCode int
-	ZipCode      string
+	ID              int
+	SubDistrictCode int
+	ZipCode         string
 }
