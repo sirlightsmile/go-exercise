@@ -50,6 +50,10 @@ import (
 )
 
 func main() {
+
+	err := address.Init()
+	checkErr(err)
+
 	provinces, err := address.GetProvinces()
 	checkErr(err)
 	for _, element := range provinces {

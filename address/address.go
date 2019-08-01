@@ -10,18 +10,27 @@ package address
 
 import (
 	"database/sql"
-
+	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func NewAddress(subDistrict string, district string, province string, zipcode string) {
+var database *sql.DB
+
+func Init() error{
+	var err error
+	database, err = sql.Open("sqlite3", "data/th_address.db")
+	checkErr(err)
+	return database.Ping();
+}
+
+func NewAddress(subDistrict string, district string, province string, zipcode string) Address{
+	return Address{}
 }
 
 func GetProvinces() ([]Province, error) {
-	database, err := sql.Open("sqlite3", "data/th_address.db")
-	checkErr(err)
-	defer database.Close()
-
+	if(database == nil){
+		fmt.Print("Database nil")
+	}
 	rows, err := database.Query("SELECT * FROM provinces")
 	if err != nil {
 		return nil, err
@@ -42,10 +51,10 @@ func GetProvinces() ([]Province, error) {
 }
 
 func GetDistrictsByProvince(province Province) ([]Amphur, error) {
-
-	database, err := sql.Open("sqlite3", "data/th_address.db")
-	checkErr(err)
-	defer database.Close()
+	err := database.Ping()
+	if err != nil {
+		return nil, err
+	}
 
 	//get amphur
 	command := "SELECT * FROM amphures WHERE province_id=?"
