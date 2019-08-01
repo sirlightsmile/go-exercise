@@ -61,11 +61,16 @@ func main() {
 	}
 
 	fmt.Println("===== Amphur =====")
-	districts, err := address.GetDistrictsByProvince(provinces[0])
+	districts, err := address.GetDistrictsByProvince(provinces[0].Name)
 	checkErr(err)
 	for _, element := range districts {
 		fmt.Println(element.Name)
 	}
+
+	fmt.Println("===== Zip code =====")
+	zipcode, err := address.GetZipcodesByDistrict(districts[0].Name)
+	checkErr(err)
+	fmt.Println(zipcode.ZipCode)
 }
 
 func checkErr(err error) {
