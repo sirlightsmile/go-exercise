@@ -17,40 +17,54 @@ import (
 func NewAddress(subDistrict string, district string, province string, zipcode string) {
 }
 
-func GetProvinces() []Province {
+func GetProvinces() ([]Province, error) {
 	database, err := sql.Open("sqlite3", "data/th_address.db")
 	checkErr(err)
 	defer database.Close()
 
 	rows, err := database.Query("SELECT * FROM provinces")
-	checkErr(err)
+	if err != nil {
+		return nil, err
+	}
 
 	var provinces []Province
 	for rows.Next() {
 		var province Province
 		err = rows.Scan(&province.ID, &province.Code, &province.Name, &province.NameEng, &province.GeoID)
-		checkErr(err)
+		if err != nil {
+			return nil, err
+		}
 		provinces = append(provinces, province)
 	}
 	rows.Close()
 
-	return provinces
+	return provinces, err
 }
 
-func GetDistrictsByProvince(province string) Amphur {
+func GetDistrictsByProvince(province Province) ([]Amphur, error) {
 
 	database, err := sql.Open("sqlite3", "data/th_address.db")
 	checkErr(err)
 	defer database.Close()
 
-	rows, err := database.Query("SELECT PROVINCE_ID FROM provinces WHERE PROVINCE_NAME IS ", province)
-	checkErr(err)
-
-	for rows.Next() {
+	//get amphur
+	command := "SELECT * FROM amphures WHERE province_id=?"
+	rows, err := database.Query(command, province.ID)
+	if err != nil {
+		return nil, err
 	}
 
-	var district Amphur
-	return district
+	var amphures []Amphur
+	for rows.Next(){
+		var amphur Amphur
+		err = rows.Scan(&amphur.ID, &amphur.Code, &amphur.Name, &amphur.NameEng, &amphur.GeoID, &amphur.ProvinceID)
+		if err != nil {
+			return nil, err
+		}
+		amphures = append(amphures, amphur)
+	}
+
+	return amphures, err
 }
 
 func checkErr(err error) {

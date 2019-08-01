@@ -50,8 +50,22 @@ import (
 )
 
 func main() {
-	province := address.GetProvinces()
-	for _, element := range province {
+	provinces, err := address.GetProvinces()
+	checkErr(err)
+	for _, element := range provinces {
 		fmt.Println(element.Name)
+	}
+
+	fmt.Println("===== Amphur =====")
+	districts, err := address.GetDistrictsByProvince(provinces[0])
+	checkErr(err)
+	for _, element := range districts {
+		fmt.Println(element.Name)
+	}
+}
+
+func checkErr(err error) {
+	if err != nil {
+		panic(err)
 	}
 }
