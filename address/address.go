@@ -8,12 +8,12 @@ package address
 //  - create Address method:
 //	- Validate() - return true if the address is valid
 
-func NewAddress(db *QueryInterface, subDistrictName string, districtName string, provinceName string, zipcode string) Address {
+func NewAddress(qi QueryInterface, subDistrictName string, districtName string, provinceName string, zipcode string) Address {
 
-	subdistict, _ := GetSubDistrictByName(db, subDistrictName)
-	district, _ := GetAmphurByName(db, districtName)
-	province, _ := GetProvinceByName(db, provinceName)
-	zipCode, _ := GetZipCodeModelByZipCode(db, zipcode)
+	subdistict, _ := GetSubDistrictByName(qi, subDistrictName)
+	district, _ := GetAmphurByName(qi, districtName)
+	province, _ := GetProvinceByName(qi, provinceName)
+	zipCode, _ := GetZipCodeModelByZipCode(qi, zipcode)
 
 	address := Address{
 		SubDistrict: subdistict,
@@ -31,8 +31,8 @@ func Validate(address Address) bool {
 		address.District.ProvinceID == address.Province.ID
 }
 
-func GetProvinces(db *QueryInterface) ([]Province, error) {
-	rows, err := db.Query("SELECT * FROM provinces")
+func GetProvinces(qi QueryInterface) ([]Province, error) {
+	rows, err := qi.Query("SELECT * FROM provinces")
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func GetProvinces(db *QueryInterface) ([]Province, error) {
 	return provinces, nil
 }
 
-func GetDistrictsByProvince(db *QueryInterface, provinceName string) ([]Amphur, error) {
+func GetDistrictsByProvince(qi QueryInterface, provinceName string) ([]Amphur, error) {
 
 	query := `
 		SELECT x.* FROM amphures x
@@ -59,7 +59,7 @@ func GetDistrictsByProvince(db *QueryInterface, provinceName string) ([]Amphur, 
 		WHERE UPPER(y.province_name_eng) = UPPER(?)
 	`
 
-	rows, err := db.Query(query, provinceName)
+	rows, err := qi.Query(query, provinceName)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func GetDistrictsByProvince(db *QueryInterface, provinceName string) ([]Amphur, 
 	return amphures, nil
 }
 
-func GetZipcodesByDistrict(db *QueryInterface, districtName string) ([]ZipCode, error) {
+func GetZipcodesByDistrict(qi QueryInterface, districtName string) ([]ZipCode, error) {
 
 	query := `
 		SELECT * FROM zipcodes z
@@ -85,7 +85,7 @@ func GetZipcodesByDistrict(db *QueryInterface, districtName string) ([]ZipCode, 
 		(SELECT district_code FROM districts WHERE amphur_id IN (SELECT amphur_id FROM amphures WHERE UPPER(amphur_name_eng) = UPPER(?)))
 		GROUP BY z.zipcode COLLATE NOCASE
 	`
-	rows, err := db.Query(query, districtName)
+	rows, err := qi.Query(query, districtName)
 	if err != nil {
 		return nil, err
 	}
@@ -103,10 +103,10 @@ func GetZipcodesByDistrict(db *QueryInterface, districtName string) ([]ZipCode, 
 	return zipcodes, nil
 }
 
-func GetProvinceByName(db *QueryInterface, name string) (Province, error) {
+func GetProvinceByName(qi QueryInterface, name string) (Province, error) {
 
 	command := "SELECT * FROM provinces WHERE province_name = ? OR UPPER(province_name_eng) = UPPER(?)"
-	row := db.QueryRow(command, name, name)
+	row := qi.QueryRow(command, name, name)
 	var province Province
 	err := row.Scan(&province.ID, &province.Code, &province.Name, &province.NameEng, &province.GeoID)
 	if err != nil {
@@ -115,9 +115,9 @@ func GetProvinceByName(db *QueryInterface, name string) (Province, error) {
 	return province, nil
 }
 
-func GetSubDistrictByName(db *QueryInterface, name string) (SubDistrict, error) {
+func GetSubDistrictByName(qi QueryInterface, name string) (SubDistrict, error) {
 	command := "SELECT * FROM districts WHERE district_name = ? OR UPPER(district_name_eng) = UPPER(?)"
-	row := db.QueryRow(command, name)
+	row := qi.QueryRow(command, name)
 	var subDistrict SubDistrict
 	err := row.Scan(&subDistrict.ID, &subDistrict.Code, &subDistrict.Name, &subDistrict.NameEng, &subDistrict.AmphurID, &subDistrict.ProvinceID, &subDistrict.GeoID)
 	if err != nil {
@@ -126,10 +126,10 @@ func GetSubDistrictByName(db *QueryInterface, name string) (SubDistrict, error) 
 	return subDistrict, nil
 }
 
-func GetAmphurByName(db *QueryInterface, name string) (Amphur, error) {
+func GetAmphurByName(qi QueryInterface, name string) (Amphur, error) {
 
 	command := "SELECT * FROM amphures WHERE amphur_name = ? OR UPPER(amphur_name_eng) = UPPER(?)"
-	row := db.QueryRow(command, name, name)
+	row := qi.QueryRow(command, name, name)
 	var amphur Amphur
 	err := row.Scan(&amphur.ID, &amphur.Code, &amphur.Name, &amphur.NameEng, &amphur.GeoID, &amphur.ProvinceID)
 	if err != nil {
@@ -138,10 +138,10 @@ func GetAmphurByName(db *QueryInterface, name string) (Amphur, error) {
 	return amphur, nil
 }
 
-func GetZipCodeModelByZipCode(db *QueryInterface, zipcode string) (ZipCode, error) {
+func GetZipCodeModelByZipCode(qi QueryInterface, zipcode string) (ZipCode, error) {
 
 	command := "SELECT * FROM zipcodes WHERE zipcode = ? COLLATE NOCASE"
-	row := db.QueryRow(command, zipcode)
+	row := qi.QueryRow(command, zipcode)
 	var result ZipCode
 	err := row.Scan(&result.ID, &result.SubDistrict, &result.ZipCode)
 	if err != nil {
