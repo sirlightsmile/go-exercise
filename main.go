@@ -61,7 +61,7 @@ func main() {
 	}
 
 	fmt.Println("===== Amphur =====")
-	districts, err := address.GetDistrictsByProvince(provinces[0].Name)
+	districts, err := address.GetDistrictsByProvince(provinces[0].NameEng)
 	checkErr(err)
 	for _, element := range districts {
 		fmt.Println(element.Name)
@@ -73,6 +73,15 @@ func main() {
 	for _, element := range zipcodes {
 		fmt.Println(element.ZipCode)
 	}
+
+	newAddress := address.NewAddress("Khet Phra Nakhon", "Wang Burapha Phirom", "Bangkok", "10200")
+	fmt.Printf("%#v\n\n", newAddress)
+	fmt.Printf("%#v\n\n", newAddress.District)
+	fmt.Printf("%#v\n\n", newAddress.SubDistrict)
+	fmt.Printf("%#v\n\n", newAddress.Province)
+	fmt.Printf("%#v\n\n", newAddress.ZipCode)
+
+	fmt.Printf("%#v\n\n", address.Validate(newAddress))
 }
 
 func checkErr(err error) {

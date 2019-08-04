@@ -9,7 +9,7 @@ type Address struct {
 	SubDistrict SubDistrict
 	District    Amphur
 	Province    Province
-	ZipCodes    ZipCode
+	ZipCode     ZipCode
 }
 
 type Amphur struct {
@@ -18,6 +18,7 @@ type Amphur struct {
 	Name       string
 	NameEng    string
 	GeoID      int
+	ProvinceID int
 }
 
 type SubDistrict struct {
@@ -26,6 +27,8 @@ type SubDistrict struct {
 	Name       string
 	NameEng    string
 	GeoID      int
+	AmphurID   int
+	ProvinceID int
 }
 
 type Province struct {
@@ -37,7 +40,7 @@ type Province struct {
 }
 
 type ZipCode struct {
-	ID              int
-	SubDistrict		string
-	ZipCode         string
+	ID          int
+	SubDistrict string
+	ZipCode     string
 }

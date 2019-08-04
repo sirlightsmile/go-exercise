@@ -10,7 +10,6 @@ package address
 
 import (
 	"database/sql"
-	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -24,27 +23,27 @@ func Init() error {
 	return database.Ping()
 }
 
-func NewAddress(subDistrict string, district string, province string, zipcode string) (Address, error) {
-	var address Address
-	var err error
-	address.Province, err = GetProvinceByName(province)
-	if err != nil {
-		return Address{}, err
-	}
-	address.SubDistrict, err = GetSubDistrictByName(subDistrict)
-	if err != nil {
-		return Address{}, err
-	}
-	address.District, err = GetAmphurByName(district)
-	if err != nil {
-		return Address{}, err
-	}
-	address.ZipCodes, err = GetZipCodeModelByZipCode(zipcode)
-	if err != nil {
-		return Address{}, err
+func NewAddress(subDistrictName string, districtName string, provinceName string, zipcode string) Address {
+
+	subdistict, _ := GetSubDistrictByName(subDistrictName)
+	district, _ := GetAmphurByName(districtName)
+	province, _ := GetProvinceByName(provinceName)
+	zipCode, _ := GetZipCodeModelByZipCode(zipcode)
+
+	address := Address{
+		SubDistrict: subdistict,
+		District:    district,
+		Province:    province,
+		ZipCode:     zipCode,
 	}
 
-	return address, nil
+	return address
+}
+
+func Validate(address Address) bool {
+	return address.ZipCode.SubDistrict == address.SubDistrict.Code &&
+		address.SubDistrict.AmphurID == address.District.ID &&
+		address.District.ProvinceID == address.Province.ID
 }
 
 func GetProvinces() ([]Province, error) {
@@ -70,9 +69,9 @@ func GetProvinces() ([]Province, error) {
 func GetDistrictsByProvince(provinceName string) ([]Amphur, error) {
 
 	query := `
-		SELECT x.amphur_id, x.amphur_code, x.amphur_name, x.amphur_name_eng, x.geo_id FROM amphures x
+		SELECT x.* FROM amphures x
 		INNER JOIN provinces y ON x.province_id = y.province_id
-		WHERE y.province_name COLLATE NOCASE = ? COLLATE NOCASE
+		WHERE UPPER(y.province_name_eng) = UPPER(?)
 	`
 
 	rows, err := database.Query(query, provinceName)
@@ -83,7 +82,7 @@ func GetDistrictsByProvince(provinceName string) ([]Amphur, error) {
 	var amphures []Amphur
 	for rows.Next() {
 		var amphur Amphur
-		err = rows.Scan(&amphur.ID, &amphur.Code, &amphur.Name, &amphur.NameEng, &amphur.GeoID)
+		err = rows.Scan(&amphur.ID, &amphur.Code, &amphur.Name, &amphur.NameEng, &amphur.GeoID, &amphur.ProvinceID)
 		if err != nil {
 			return nil, err
 		}
@@ -121,8 +120,7 @@ func GetZipcodesByDistrict(districtName string) ([]ZipCode, error) {
 
 func GetProvinceByName(name string) (Province, error) {
 
-	name = strings.ToUpper(name)
-	command := "SELECT * FROM provinces WHERE UPPER(province_name)=? OR UPPER(province_name_eng)=?"
+	command := "SELECT * FROM provinces WHERE province_name = ? OR UPPER(province_name_eng) = UPPER(?)"
 	row := database.QueryRow(command, name, name)
 	var province Province
 	err := row.Scan(&province.ID, &province.Code, &province.Name, &province.NameEng, &province.GeoID)
@@ -133,12 +131,10 @@ func GetProvinceByName(name string) (Province, error) {
 }
 
 func GetSubDistrictByName(name string) (SubDistrict, error) {
-
-	name = strings.ToUpper(name)
-	command := "SELECT * FROM districts WHERE UPPER(district_name)=? OR UPPER(district_name_eng)=?"
-	row := database.QueryRow(command, name, name)
+	command := "SELECT * FROM districts WHERE district_name = ? OR UPPER(district_name_eng) = UPPER(?)"
+	row := database.QueryRow(command, name)
 	var subDistrict SubDistrict
-	err := row.Scan(&subDistrict.ID, &subDistrict.Code, &subDistrict.Name, &subDistrict.NameEng, &subDistrict.GeoID)
+	err := row.Scan(&subDistrict.ID, &subDistrict.Code, &subDistrict.Name, &subDistrict.NameEng, &subDistrict.AmphurID, &subDistrict.ProvinceID, &subDistrict.GeoID)
 	if err != nil {
 		return SubDistrict{}, err
 	}
@@ -147,11 +143,10 @@ func GetSubDistrictByName(name string) (SubDistrict, error) {
 
 func GetAmphurByName(name string) (Amphur, error) {
 
-	name = strings.ToUpper(name)
-	command := "SELECT * FROM amphures WHERE UPPER(amphur_name)=? OR UPPER(amphur_name_eng)=?"
+	command := "SELECT * FROM amphures WHERE amphur_name = ? OR UPPER(amphur_name_eng) = UPPER(?)"
 	row := database.QueryRow(command, name, name)
 	var amphur Amphur
-	err := row.Scan(&amphur.ID, &amphur.Code, &amphur.Name, &amphur.NameEng, &amphur.GeoID)
+	err := row.Scan(&amphur.ID, &amphur.Code, &amphur.Name, &amphur.NameEng, &amphur.GeoID, &amphur.ProvinceID)
 	if err != nil {
 		return Amphur{}, err
 	}
@@ -160,7 +155,7 @@ func GetAmphurByName(name string) (Amphur, error) {
 
 func GetZipCodeModelByZipCode(zipcode string) (ZipCode, error) {
 
-	command := "SELECT * FROM zipcodes WHERE zipcode = ?"
+	command := "SELECT * FROM zipcodes WHERE zipcode = ? COLLATE NOCASE"
 	row := database.QueryRow(command, zipcode)
 	var result ZipCode
 	err := row.Scan(&result.ID, &result.SubDistrict, &result.ZipCode)
