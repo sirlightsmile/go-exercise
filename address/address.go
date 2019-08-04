@@ -67,15 +67,14 @@ func GetProvinces() ([]Province, error) {
 }
 
 func GetDistrictsByProvince(provinceName string) ([]Amphur, error) {
-	
-	province, err := GetProvinceByName(provinceName)
-	if err != nil {
-		return nil, err
-	}
 
-	//get amphur
-	command := "SELECT * FROM amphures WHERE province_id=?"
-	rows, err := database.Query(command, province.ID)
+	query := `
+		SELECT x.amphur_id, x.amphur_code, x.amphur_name, x.amphur_name_eng, x.geo_id FROM amphures x
+		INNER JOIN provinces y ON x.province_id = y.province_id
+		WHERE y.province_name COLLATE NOCASE = ? COLLATE NOCASE
+	`
+
+	rows, err := database.Query(query, provinceName)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +82,7 @@ func GetDistrictsByProvince(provinceName string) ([]Amphur, error) {
 	var amphures []Amphur
 	for rows.Next(){
 		var amphur Amphur
-		err = rows.Scan(&amphur.ID, &amphur.Code, &amphur.Name, &amphur.NameEng, &amphur.GeoID, &amphur.ProvinceID)
+		err = rows.Scan(&amphur.ID, &amphur.Code, &amphur.Name, &amphur.NameEng, &amphur.GeoID)
 		if err != nil {
 			return nil, err
 		}
@@ -93,30 +92,30 @@ func GetDistrictsByProvince(provinceName string) ([]Amphur, error) {
 	return amphures, nil
 }
 
-func GetZipcodesByDistrict(districtName string) (ZipCode, error) {
+func GetZipcodesByDistrict(districtName string) ([]ZipCode, error) {
 
-	amphur, err := GetAmphurByName(districtName)
+	query := `
+		SELECT * FROM zipcodes
+		WHERE district_code COLLATE NOCASE IN 
+		(SELECT district_code COLLATE NOCASE FROM districts WHERE province_id IN (SELECT province_id FROM amphures WHERE UPPER(amphur_name_eng) = UPPER(?)))
+	`
+
+	rows, err := database.Query(query, districtName)
 	if err != nil {
-		return ZipCode{}, err
+		return nil, err
 	}
 
-	command := "SELECT * FROM districts WHERE amphur_id=?"
-	row := database.QueryRow(command, amphur.ID)
-	var subDistrict SubDistrict
-	err = row.Scan(&subDistrict.ID, &subDistrict.Code, &subDistrict.Name, &subDistrict.NameEng, &subDistrict.AmphurID, &subDistrict.ProvinceID, &subDistrict.GeoID)
-	if err != nil {
-		return ZipCode{}, err
+	var zipcodes []ZipCode
+	for rows.Next(){
+		var zipcode ZipCode
+		err := rows.Scan(&zipcode.ID, &zipcode.SubDistrict, &zipcode.ZipCode)
+		if err != nil {
+			return nil, err
+		}
+		zipcodes = append(zipcodes, zipcode)
 	}
 
-	command = "SELECT * FROM zipcodes WHERE district_code=?"
-	row = database.QueryRow(command, subDistrict.Code)
-	var zipcode ZipCode
-	err = row.Scan(&zipcode.ID, &zipcode.SubDistrictCode, &zipcode.ZipCode)
-	if err != nil {
-		return ZipCode{}, err
-	}
-
-	return zipcode, nil
+	return zipcodes, nil
 }
 
 func GetProvinceByName(name string) (Province, error){
@@ -138,7 +137,7 @@ func GetSubDistrictByName(name string) (SubDistrict, error){
 	command := "SELECT * FROM districts WHERE UPPER(district_name)=? OR UPPER(district_name_eng)=?"
 	row := database.QueryRow(command, name, name)
 	var subDistrict SubDistrict
-	err := row.Scan(&subDistrict.ID, &subDistrict.Code, &subDistrict.Name, &subDistrict.NameEng, &subDistrict.AmphurID, &subDistrict.ProvinceID, &subDistrict.GeoID)
+	err := row.Scan(&subDistrict.ID, &subDistrict.Code, &subDistrict.Name, &subDistrict.NameEng, &subDistrict.GeoID)
 	if(err != nil){
 		return SubDistrict{}, err
 	}
@@ -151,7 +150,7 @@ func GetAmphurByName(name string) (Amphur, error){
 	command := "SELECT * FROM amphures WHERE UPPER(amphur_name)=? OR UPPER(amphur_name_eng)=?"
 	row := database.QueryRow(command, name, name)
 	var amphur Amphur
-	err := row.Scan(&amphur.ID, &amphur.Code, &amphur.Name, &amphur.NameEng, &amphur.GeoID, &amphur.ProvinceID)
+	err := row.Scan(&amphur.ID, &amphur.Code, &amphur.Name, &amphur.NameEng, &amphur.GeoID)
 	if(err != nil){
 		return Amphur{}, err
 	}
@@ -163,7 +162,7 @@ func GetZipCodeModelByZipCode(zipcode string) (ZipCode, error){
 	command := "SELECT * FROM zipcodes WHERE zipcode = ?"
 	row := database.QueryRow(command, zipcode)
 	var result ZipCode
-	err := row.Scan(&result.ID, &result.SubDistrictCode, &result.ZipCode)
+	err := row.Scan(&result.ID, &result.SubDistrict, &result.ZipCode)
 	if(err != nil){
 		return ZipCode{}, err
 	}

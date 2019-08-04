@@ -67,12 +67,12 @@ func main() {
 		fmt.Println(element.Name)
 	}
 
-	/*
 	fmt.Println("===== Zip code =====")
-	zipcode, err := address.GetZipcodesByDistrict(districts[0].Name)
+	zipcodes, err := address.GetZipcodesByDistrict(districts[0].NameEng)
 	checkErr(err)
-	fmt.Println(zipcode.ZipCode)
-	*/
+	for _, element := range zipcodes {
+		fmt.Println(element.ZipCode)
+	}
 }
 
 func checkErr(err error) {

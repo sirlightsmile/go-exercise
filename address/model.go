@@ -17,7 +17,6 @@ type Amphur struct {
 	Code       string
 	Name       string
 	NameEng    string
-	ProvinceID int
 	GeoID      int
 }
 
@@ -26,8 +25,6 @@ type SubDistrict struct {
 	Code       string
 	Name       string
 	NameEng    string
-	AmphurID   int
-	ProvinceID int
 	GeoID      int
 }
 
@@ -41,6 +38,6 @@ type Province struct {
 
 type ZipCode struct {
 	ID              int
-	SubDistrictCode int
+	SubDistrict		string
 	ZipCode         string
 }
