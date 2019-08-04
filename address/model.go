@@ -1,10 +1,5 @@
 package address
 
-// 	subDistrict (districts table)
-//		- district (amphures table)
-//		- province (provinces table)
-//		- zipcode (zipcodes table)
-
 type Address struct {
 	SubDistrict SubDistrict
 	District    Amphur

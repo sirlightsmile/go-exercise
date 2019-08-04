@@ -49,32 +49,34 @@ import (
 	"./address"
 )
 
+const databasePath = "data/th_address.db"
+
 func main() {
 
-	err := address.Init()
+	db, err := address.ConnectSqlDB(databasePath)
 	checkErr(err)
 
-	provinces, err := address.GetProvinces()
+	provinces, err := address.GetProvinces(db)
 	checkErr(err)
 	for _, element := range provinces {
 		fmt.Println(element.Name)
 	}
 
 	fmt.Println("===== Amphur =====")
-	districts, err := address.GetDistrictsByProvince(provinces[0].NameEng)
+	districts, err := address.GetDistrictsByProvince(db, provinces[0].NameEng)
 	checkErr(err)
 	for _, element := range districts {
 		fmt.Println(element.Name)
 	}
 
 	fmt.Println("===== Zip code =====")
-	zipcodes, err := address.GetZipcodesByDistrict(districts[0].NameEng)
+	zipcodes, err := address.GetZipcodesByDistrict(db, districts[0].NameEng)
 	checkErr(err)
 	for _, element := range zipcodes {
 		fmt.Println(element.ZipCode)
 	}
 
-	newAddress := address.NewAddress("Khet Phra Nakhon", "Wang Burapha Phirom", "Bangkok", "10200")
+	newAddress := address.NewAddress(db, "Khet Phra Nakhon", "Wang Burapha Phirom", "Bangkok", "10200")
 	fmt.Printf("%#v\n\n", newAddress)
 	fmt.Printf("%#v\n\n", newAddress.District)
 	fmt.Printf("%#v\n\n", newAddress.SubDistrict)
