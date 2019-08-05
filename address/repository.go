@@ -24,15 +24,6 @@ func ConnectSqlDB(path string) (*SqlDB, error) {
 	return &sqlDB, err
 }
 
-/*
-func Init() error {
-	var err error
-	database, err = sql.Open("sqlite3", "data/th_address.db")
-	checkErr(err)
-	return database.Ping()
-}
-*/
-
 func (sqlDB *SqlDB) Query(queryStr string, args ...interface{}) (*sql.Rows, error) {
 	if len(args) == 0 {
 		return sqlDB.database.Query(queryStr)
