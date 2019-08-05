@@ -67,8 +67,20 @@ func TestNewAddress(t *testing.T) {
 			},
 		}
 
+		falseExpected := Address{
+			Province:    Province{},
+			District:    Amphur{},
+			SubDistrict: SubDistrict{},
+			ZipCode:     ZipCode{},
+		}
+
 		result := NewAddress(db, "Phra Borom Maha Ratchawang", "Khet Phra Nakhon", "Bangkok", "10200")
 		if !reflect.DeepEqual(expected, result) {
+			t.Errorf("Failed, expected : \n\n%#v\n\nreality : \n\n%#v", expected, result)
+		}
+
+		result = NewAddress(db, "?", "?", "?", "?")
+		if !reflect.DeepEqual(falseExpected, result) {
 			t.Errorf("Failed, expected : \n\n%#v\n\nreality : \n\n%#v", expected, result)
 		}
 	})

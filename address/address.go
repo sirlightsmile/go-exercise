@@ -10,14 +10,10 @@ package address
 
 func NewAddress(qi QueryInterface, subDistrictName string, districtName string, provinceName string, zipcode string) Address {
 
-	subdistict, err := GetSubDistrictByName(qi, subDistrictName)
-	checkErr(err)
-	district, err := GetAmphurByName(qi, districtName)
-	checkErr(err)
-	province, err := GetProvinceByName(qi, provinceName)
-	checkErr(err)
-	zipCode, err := GetZipCodeModelByZipCode(qi, zipcode)
-	checkErr(err)
+	subdistict, _ := GetSubDistrictByName(qi, subDistrictName)
+	district, _ := GetAmphurByName(qi, districtName)
+	province, _ := GetProvinceByName(qi, provinceName)
+	zipCode, _ := GetZipCodeModelByZipCode(qi, zipcode)
 
 	address := Address{
 		SubDistrict: subdistict,
@@ -151,10 +147,4 @@ func GetZipCodeModelByZipCode(qi QueryInterface, zipcode string) (ZipCode, error
 		return ZipCode{}, err
 	}
 	return result, nil
-}
-
-func checkErr(err error) {
-	if err != nil {
-		panic(err)
-	}
 }
