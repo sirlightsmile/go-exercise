@@ -75,8 +75,10 @@ func main() {
 	zipcodes, err := address.GetZipcodesByDistrict(db, districts[0].NameEng)
 	checkErr(err)
 	for _, element := range zipcodes {
-		fmt.Println(element.ZipCode)
+		fmt.Printf("District code : %s Zipcode %s\n", element.SubDistrict, element.ZipCode)
 	}
+
+	fmt.Println("===== New Address & Validation =====")
 
 	newAddress := address.NewAddress(db, "Khet Phra Nakhon", "Wang Burapha Phirom", "Bangkok", "10200")
 	fmt.Printf("%#v\n\n", newAddress)

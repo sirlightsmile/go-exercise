@@ -83,7 +83,6 @@ func GetZipcodesByDistrict(qi QueryInterface, districtName string) ([]ZipCode, e
 		SELECT * FROM zipcodes z
 		WHERE district_code COLLATE NOCASE IN 
 		(SELECT district_code FROM districts WHERE amphur_id IN (SELECT amphur_id FROM amphures WHERE UPPER(amphur_name_eng) = UPPER(?)))
-		GROUP BY z.zipcode COLLATE NOCASE
 	`
 	rows, err := qi.Query(query, districtName)
 	if err != nil {
