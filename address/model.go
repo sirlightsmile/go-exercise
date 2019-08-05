@@ -28,7 +28,7 @@ type SubDistrict struct {
 
 type Province struct {
 	ID      int
-	Code    int
+	Code    string
 	Name    string
 	NameEng string
 	GeoID   int

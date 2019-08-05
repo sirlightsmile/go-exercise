@@ -10,10 +10,14 @@ package address
 
 func NewAddress(qi QueryInterface, subDistrictName string, districtName string, provinceName string, zipcode string) Address {
 
-	subdistict, _ := GetSubDistrictByName(qi, subDistrictName)
-	district, _ := GetAmphurByName(qi, districtName)
-	province, _ := GetProvinceByName(qi, provinceName)
-	zipCode, _ := GetZipCodeModelByZipCode(qi, zipcode)
+	subdistict, err := GetSubDistrictByName(qi, subDistrictName)
+	checkErr(err)
+	district, err := GetAmphurByName(qi, districtName)
+	checkErr(err)
+	province, err := GetProvinceByName(qi, provinceName)
+	checkErr(err)
+	zipCode, err := GetZipCodeModelByZipCode(qi, zipcode)
+	checkErr(err)
 
 	address := Address{
 		SubDistrict: subdistict,
@@ -104,7 +108,7 @@ func GetZipcodesByDistrict(qi QueryInterface, districtName string) ([]ZipCode, e
 
 func GetProvinceByName(qi QueryInterface, name string) (Province, error) {
 
-	command := "SELECT * FROM provinces WHERE province_name = ? OR UPPER(province_name_eng) = UPPER(?)"
+	command := "SELECT * FROM provinces WHERE TRIM(province_name) = TRIM(?) COLLATE NOCASE OR UPPER(province_name_eng) = UPPER(?)"
 	row := qi.QueryRow(command, name, name)
 	var province Province
 	err := row.Scan(&province.ID, &province.Code, &province.Name, &province.NameEng, &province.GeoID)
@@ -115,8 +119,8 @@ func GetProvinceByName(qi QueryInterface, name string) (Province, error) {
 }
 
 func GetSubDistrictByName(qi QueryInterface, name string) (SubDistrict, error) {
-	command := "SELECT * FROM districts WHERE district_name = ? OR UPPER(district_name_eng) = UPPER(?)"
-	row := qi.QueryRow(command, name)
+	command := "SELECT * FROM districts WHERE TRIM(district_name) = TRIM(?) COLLATE NOCASE OR UPPER(district_name_eng) = UPPER(?)"
+	row := qi.QueryRow(command, name, name)
 	var subDistrict SubDistrict
 	err := row.Scan(&subDistrict.ID, &subDistrict.Code, &subDistrict.Name, &subDistrict.NameEng, &subDistrict.AmphurID, &subDistrict.ProvinceID, &subDistrict.GeoID)
 	if err != nil {
@@ -127,7 +131,7 @@ func GetSubDistrictByName(qi QueryInterface, name string) (SubDistrict, error) {
 
 func GetAmphurByName(qi QueryInterface, name string) (Amphur, error) {
 
-	command := "SELECT * FROM amphures WHERE amphur_name = ? OR UPPER(amphur_name_eng) = UPPER(?)"
+	command := "SELECT * FROM amphures WHERE TRIM(amphur_name) = TRIM(?) COLLATE NOCASE OR UPPER(amphur_name_eng) = UPPER(?)"
 	row := qi.QueryRow(command, name, name)
 	var amphur Amphur
 	err := row.Scan(&amphur.ID, &amphur.Code, &amphur.Name, &amphur.NameEng, &amphur.GeoID, &amphur.ProvinceID)

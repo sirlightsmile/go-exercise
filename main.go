@@ -80,7 +80,7 @@ func main() {
 
 	fmt.Println("===== New Address & Validation =====")
 
-	newAddress := address.NewAddress(db, "Khet Phra Nakhon", "Wang Burapha Phirom", "Bangkok", "10200")
+	newAddress := address.NewAddress(db, "Wang Burapha Phirom", "Khet Phra Nakhon", "Bangkok", "10200")
 	fmt.Printf("%#v\n\n", newAddress)
 	fmt.Printf("%#v\n\n", newAddress.District)
 	fmt.Printf("%#v\n\n", newAddress.SubDistrict)
