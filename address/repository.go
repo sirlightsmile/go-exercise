@@ -17,11 +17,11 @@ type QueryInterface interface {
 
 const sqlVersion = "sqlite3"
 
-func ConnectSqlDB(path string) (SqlDB, error) {
+func ConnectSqlDB(path string) (*SqlDB, error) {
 	var sqlDB SqlDB
 	var err error
 	sqlDB.database, err = sql.Open(sqlVersion, path)
-	return sqlDB, err
+	return &sqlDB, err
 }
 
 /*
