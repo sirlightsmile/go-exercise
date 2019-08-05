@@ -45,15 +45,17 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
 
-	"./address"
+	"smile/address"
 )
 
-const databasePath = "data/th_address.db"
+const databasePath = "./data/th_address.db"
 
 func main() {
-
-	db, err := address.ConnectSqlDB(databasePath)
+	absPath, err := filepath.Abs(databasePath)
+	checkErr(err)
+	db, err := address.ConnectSqlDB(absPath)
 	checkErr(err)
 
 	provinces, err := address.GetProvinces(db)
