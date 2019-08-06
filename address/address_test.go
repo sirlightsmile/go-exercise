@@ -86,6 +86,77 @@ func TestNewAddress(t *testing.T) {
 	})
 }
 
+func TestValidation(t *testing.T) {
+
+	t.Run("Validation test", func(t *testing.T) {
+		validAddress := Address{
+			Province: Province{
+				ID:      1,
+				Code:    "10",
+				Name:    "กรุงเทพมหานคร   ",
+				NameEng: "Bangkok",
+				GeoID:   2,
+			},
+			District: Amphur{
+				ID:         1,
+				Code:       "1001",
+				Name:       "เขตพระนคร   ",
+				NameEng:    "Khet Phra Nakhon",
+				GeoID:      2,
+				ProvinceID: 1,
+			},
+			SubDistrict: SubDistrict{
+				ID:         1,
+				Code:       "100101",
+				Name:       "พระบรมมหาราชวัง",
+				NameEng:    "Phra Borom Maha Ratchawang",
+				GeoID:      2,
+				AmphurID:   1,
+				ProvinceID: 1,
+			},
+			ZipCode: ZipCode{
+				ID:          1,
+				SubDistrict: "100101",
+				ZipCode:     "10200",
+			},
+		}
+		wrongProvince := validAddress
+		wrongProvince.Province = Province{
+			ID:    2,
+			GeoID: 2,
+		}
+
+		wrongDistrict := validAddress
+		wrongDistrict.District = Amphur{
+			ID:         2,
+			ProvinceID: 1,
+		}
+
+		wrongSubdistrict := validAddress
+		wrongSubdistrict.SubDistrict = SubDistrict{
+			AmphurID:   2,
+			ProvinceID: 2,
+		}
+
+		wrongZipcode := validAddress
+		wrongZipcode.ZipCode.SubDistrict = "0"
+
+		expectedStruct := map[Address]bool{
+			validAddress:     true,
+			wrongProvince:    false,
+			wrongDistrict:    false,
+			wrongSubdistrict: false,
+			wrongZipcode:     false,
+		}
+
+		for k, v := range expectedStruct {
+			if Validate(k) != v {
+				t.Errorf("Validation test failed")
+			}
+		}
+	})
+}
+
 func TestGetProvinces(t *testing.T) {
 
 	db, _ := ConnectSqlDB(absPath)
