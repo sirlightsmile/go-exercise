@@ -230,3 +230,31 @@ func TestGetZipcodesByDistrict(t *testing.T) {
 		}
 	})
 }
+
+func TestQueryRow(t *testing.T) {
+
+	db, _ := ConnectSqlDB(absPath)
+
+	t.Run("Query row test", func(t *testing.T) {
+
+		row := db.QueryRow(`SELECT * FROM provinces WHERE province_id = 1`)
+
+		var result Province
+		err := row.Scan(&result.ID, &result.Code, &result.Name, &result.NameEng, &result.GeoID)
+		if err != nil {
+			t.Errorf("Error: %v", err)
+		}
+
+		expected := Province{
+			ID:      1,
+			Code:    "10",
+			Name:    "กรุงเทพมหานคร   ",
+			NameEng: "Bangkok",
+			GeoID:   2,
+		}
+
+		if !reflect.DeepEqual(expected, result) {
+			t.Errorf("Failed, expected : %#v reality : %#v", expected, row)
+		}
+	})
+}
