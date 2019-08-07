@@ -1,93 +1,161 @@
 package main
 
 //
-// Address package
-//
-// Create 'address' package for lookup and validation of Thai address over a database
-// this database is commonly used in e-commerce businesses in Thailand for address validation
-//
-// Requirements:
-//
-// 1) package name must be called 'address'
+// HTTP server
 //
 //
-// 2) There is a database (SQLite) in folder 'data/th_address.db'
-//	- access this database and use it for all queries
+// Extend your exercise_02 and create a HTTP server that will listen on port 4000 and will implement these APIs:
 //
 //
-// 3) define structure Address in the package with these properties:
-//		- subDistrict (districts table)
-//		- district (amphures table)
-//		- province (provinces table)
-//		- zipcode (zipcodes table)
+// PREREQUISITES:
+// - simplify your queries using joins and inner selects
+// - implement repository pattern
 //
 //
-// 4) create these functions inside the package
-//
-//	- NewAddress(subDistrict, district, province, zipcode) - return new Address instance
-//	- GetProvinces() - return list of all provinces
-//  - GetDistrictsByProvince(province) - return list of all districts in a specified province
-//  - GetZipcodesByDistrict(district) - return list of all zipcodes in a specified district
-//
-//  - create Address method:
-//	- Validate() - return true if the address is valid
+// - Use HTTP GET method
+// - Use go mod for dependencies (https://blog.golang.org/using-go-modules)
 //
 //
-// 6) create test file in the same package ('address_test.go')
-//  - write test cases for all methods above
-//  - test coverage must be 100% (go test -cover)
-//  - all tests must pass
+// 1) /api/validate_address
+// 		with JSON payload in a request body, example:
+//		{ "subDistrict": "Chan Kasem", "district": "Chatuchak", "province: "Bangkok", "zipcode": 10900 }
+//
+//  	if the address is valid, response will return HTTP status code 200 with response body { "result": "Address is valid." }
+//		if the address is not valid, response will return HTTP status code 422 with response body { "error": "Address is not valid." }
 //
 //
-// Additional notes: Use only English names, address validation is NOT case sensitive
+// 2) /api/get_provinces
+//		empty request body
 //
+//		will return HTTP status code 200 with response body { "result": [ "Bangkok", ... ] }
+//
+//
+// 3) /api/get_district_by_province
+// 		with JSON payload in a request body, example:
+//		{ "province": "Chiang Mai" }
+//
+//		if province is valid, response will return HTTP status code 200 with response body { "result": [ ... districts ... ] }
+//		if province is not valid, response will return status code 422 with response body { "error": "Province is not valid." }
+//
+//
+// 4) /api/get_zipcodes_by_district
+// 		with JSON payload in a request body, example:
+//		{ "district": "Chatuchak" }
+//
+//		if district is valid, response will return HTTP status code 200 with response body { "result": [ 10000, 10100, ... ] }
+//		if district is not valid, response will return status code 422 with response body { "error": "District is not valid." }
+//
+//
+// 5) for any undefined url route return error HTTP status code 404 with response body { "error: "The requested URL was not found on the server." }
+//  	examples of invalid urls:
+//			/invalid_url
+//			/api/invalid_url
+//			/api
+//			/
+//
+//
+// 6) write test on all new APIs
 //
 
 import (
-	"fmt"
+	"encoding/json"
+	"net/http"
 	"path/filepath"
-
 	"smile/address"
 )
 
 const databasePath = "./data/th_address.db"
 
+var db *address.SqlDB
+
 func main() {
+
 	absPath, err := filepath.Abs(databasePath)
 	checkErr(err)
-	db, err := address.ConnectSqlDB(absPath)
+	db, err = address.ConnectSqlDB(absPath)
 	checkErr(err)
 
+	handleRequest()
+}
+
+func handleRequest() {
+	http.HandleFunc("/newAddress", NewAddress)
+	http.HandleFunc("/validate", Validate)
+	http.HandleFunc("/getProvinces", GetProvincesRequest)
+	http.HandleFunc("/getDistrictByProvince", GetDistrictByProvince)
+	http.HandleFunc("/getZipcodesByDistrict", GetZipcodesByDistrict)
+	http.ListenAndServe(":4000", nil)
+}
+
+func GetProvincesRequest(w http.ResponseWriter, r *http.Request) {
 	provinces, err := address.GetProvinces(db)
-	checkErr(err)
-	for _, element := range provinces {
-		fmt.Println(element.Name)
+	checkErr((err))
+	json.NewEncoder(w).Encode(provinces)
+}
+
+func GetDistrictByProvince(w http.ResponseWriter, r *http.Request) {
+	type Task struct {
+		Province string
 	}
 
-	fmt.Println("===== Amphur =====")
-	districts, err := address.GetDistrictsByProvince(db, provinces[0].NameEng)
-	checkErr(err)
-	for _, element := range districts {
-		fmt.Println(element.Name)
+	var task Task
+	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
 	}
 
-	fmt.Println("===== Zip code =====")
-	zipcodes, err := address.GetZipcodesByDistrict(db, districts[0].NameEng)
-	checkErr(err)
-	for _, element := range zipcodes {
-		fmt.Printf("District code : %s Zipcode %s\n", element.SubDistrict, element.ZipCode)
+	districts, err := address.GetDistrictsByProvince(db, task.Province)
+	checkErr((err))
+
+	json.NewEncoder(w).Encode(districts)
+}
+
+func GetZipcodesByDistrict(w http.ResponseWriter, r *http.Request) {
+	type Task struct {
+		District string
 	}
 
-	fmt.Println("===== New Address & Validation =====")
+	var task Task
+	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
 
-	newAddress := address.NewAddress(db, "Wang Burapha Phirom", "Khet Phra Nakhon", "Bangkok", "10200")
-	fmt.Printf("%#v\n\n", newAddress)
-	fmt.Printf("%#v\n\n", newAddress.District)
-	fmt.Printf("%#v\n\n", newAddress.SubDistrict)
-	fmt.Printf("%#v\n\n", newAddress.Province)
-	fmt.Printf("%#v\n\n", newAddress.ZipCode)
+	zipcodes, err := address.GetZipcodesByDistrict(db, task.District)
+	checkErr((err))
 
-	fmt.Printf("%#v\n\n", address.Validate(newAddress))
+	json.NewEncoder(w).Encode(zipcodes)
+}
+
+func NewAddress(w http.ResponseWriter, r *http.Request) {
+	var task struct {
+		Province    string
+		District    string
+		SubDistrict string
+		ZipCode     string
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+
+	newAddress := address.NewAddress(db, task.SubDistrict, task.District, task.Province, task.ZipCode)
+
+	json.NewEncoder(w).Encode(newAddress)
+}
+
+func Validate(w http.ResponseWriter, r *http.Request) {
+
+	var task address.Address
+	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
+		http.Error(w, "bad request", http.StatusBadRequest)
+		return
+	}
+
+	valid := address.Validate(task)
+
+	json.NewEncoder(w).Encode(valid)
 }
 
 func checkErr(err error) {
