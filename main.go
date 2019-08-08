@@ -58,104 +58,23 @@ package main
 //
 
 import (
-	"encoding/json"
-	"net/http"
 	"path/filepath"
-	"smile/address"
+	"smile/api"
+	"smile/repository"
 )
 
 const databasePath = "./data/th_address.db"
 
-var db *address.SqlDB
+var db *repository.SqlDB
 
 func main() {
 
 	absPath, err := filepath.Abs(databasePath)
 	checkErr(err)
-	db, err = address.ConnectSqlDB(absPath)
+	db, err = repository.ConnectSqlDB(absPath)
 	checkErr(err)
 
-	handleRequest()
-}
-
-func handleRequest() {
-	http.HandleFunc("/newAddress", NewAddress)
-	http.HandleFunc("/validate", Validate)
-	http.HandleFunc("/getProvinces", GetProvincesRequest)
-	http.HandleFunc("/getDistrictByProvince", GetDistrictByProvince)
-	http.HandleFunc("/getZipcodesByDistrict", GetZipcodesByDistrict)
-	http.ListenAndServe(":4000", nil)
-}
-
-func GetProvincesRequest(w http.ResponseWriter, r *http.Request) {
-	provinces, err := address.GetProvinces(db)
-	checkErr((err))
-	json.NewEncoder(w).Encode(provinces)
-}
-
-func GetDistrictByProvince(w http.ResponseWriter, r *http.Request) {
-	type Task struct {
-		Province string
-	}
-
-	var task Task
-	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
-		http.Error(w, "bad request", http.StatusBadRequest)
-		return
-	}
-
-	districts, err := address.GetDistrictsByProvince(db, task.Province)
-	checkErr((err))
-
-	json.NewEncoder(w).Encode(districts)
-}
-
-func GetZipcodesByDistrict(w http.ResponseWriter, r *http.Request) {
-	type Task struct {
-		District string
-	}
-
-	var task Task
-	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
-		http.Error(w, "bad request", http.StatusBadRequest)
-		return
-	}
-
-	zipcodes, err := address.GetZipcodesByDistrict(db, task.District)
-	checkErr((err))
-
-	json.NewEncoder(w).Encode(zipcodes)
-}
-
-func NewAddress(w http.ResponseWriter, r *http.Request) {
-	var task struct {
-		Province    string
-		District    string
-		SubDistrict string
-		ZipCode     string
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
-		http.Error(w, "bad request", http.StatusBadRequest)
-		return
-	}
-
-	newAddress := address.NewAddress(db, task.SubDistrict, task.District, task.Province, task.ZipCode)
-
-	json.NewEncoder(w).Encode(newAddress)
-}
-
-func Validate(w http.ResponseWriter, r *http.Request) {
-
-	var task address.Address
-	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
-		http.Error(w, "bad request", http.StatusBadRequest)
-		return
-	}
-
-	valid := address.Validate(task)
-
-	json.NewEncoder(w).Encode(valid)
+	api.Init(db, ":4000")
 }
 
 func checkErr(err error) {

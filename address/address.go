@@ -1,5 +1,7 @@
 package address
 
+import "smile/repository"
+
 //	- NewAddress(subDistrict, district, province, zipcode) - return new Address instance
 //	- GetProvinces() - return list of all provinces
 //  - GetDistrictsByProvince(province) - return list of all districts in a specified province
@@ -8,7 +10,7 @@ package address
 //  - create Address method:
 //	- Validate() - return true if the address is valid
 
-func NewAddress(qi QueryInterface, subDistrictName string, districtName string, provinceName string, zipcode string) Address {
+func NewAddress(qi repository.QueryInterface, subDistrictName string, districtName string, provinceName string, zipcode string) Address {
 
 	subdistict, _ := GetSubDistrictByName(qi, subDistrictName)
 	district, _ := GetAmphurByName(qi, districtName)
@@ -31,7 +33,7 @@ func Validate(address Address) bool {
 		address.District.ProvinceID == address.Province.ID
 }
 
-func GetProvinces(qi QueryInterface) ([]Province, error) {
+func GetProvinces(qi repository.QueryInterface) ([]Province, error) {
 	rows, err := qi.Query("SELECT * FROM provinces")
 	if err != nil {
 		return nil, err
@@ -51,7 +53,7 @@ func GetProvinces(qi QueryInterface) ([]Province, error) {
 	return provinces, nil
 }
 
-func GetDistrictsByProvince(qi QueryInterface, provinceName string) ([]Amphur, error) {
+func GetDistrictsByProvince(qi repository.QueryInterface, provinceName string) ([]Amphur, error) {
 
 	query := `
 		SELECT x.* FROM amphures x
@@ -77,7 +79,7 @@ func GetDistrictsByProvince(qi QueryInterface, provinceName string) ([]Amphur, e
 	return amphures, nil
 }
 
-func GetZipcodesByDistrict(qi QueryInterface, districtName string) ([]ZipCode, error) {
+func GetZipcodesByDistrict(qi repository.QueryInterface, districtName string) ([]ZipCode, error) {
 
 	query := `
 		SELECT * FROM zipcodes z
@@ -102,7 +104,7 @@ func GetZipcodesByDistrict(qi QueryInterface, districtName string) ([]ZipCode, e
 	return zipcodes, nil
 }
 
-func GetProvinceByName(qi QueryInterface, name string) (Province, error) {
+func GetProvinceByName(qi repository.QueryInterface, name string) (Province, error) {
 
 	command := "SELECT * FROM provinces WHERE TRIM(province_name) = TRIM(?) COLLATE NOCASE OR UPPER(province_name_eng) = UPPER(?)"
 	row := qi.QueryRow(command, name, name)
@@ -114,7 +116,7 @@ func GetProvinceByName(qi QueryInterface, name string) (Province, error) {
 	return province, nil
 }
 
-func GetSubDistrictByName(qi QueryInterface, name string) (SubDistrict, error) {
+func GetSubDistrictByName(qi repository.QueryInterface, name string) (SubDistrict, error) {
 	command := "SELECT * FROM districts WHERE TRIM(district_name) = TRIM(?) COLLATE NOCASE OR UPPER(district_name_eng) = UPPER(?)"
 	row := qi.QueryRow(command, name, name)
 	var subDistrict SubDistrict
@@ -125,7 +127,7 @@ func GetSubDistrictByName(qi QueryInterface, name string) (SubDistrict, error) {
 	return subDistrict, nil
 }
 
-func GetAmphurByName(qi QueryInterface, name string) (Amphur, error) {
+func GetAmphurByName(qi repository.QueryInterface, name string) (Amphur, error) {
 
 	command := "SELECT * FROM amphures WHERE TRIM(amphur_name) = TRIM(?) COLLATE NOCASE OR UPPER(amphur_name_eng) = UPPER(?)"
 	row := qi.QueryRow(command, name, name)
@@ -137,7 +139,7 @@ func GetAmphurByName(qi QueryInterface, name string) (Amphur, error) {
 	return amphur, nil
 }
 
-func GetZipCodeModelByZipCode(qi QueryInterface, zipcode string) (ZipCode, error) {
+func GetZipCodeModelByZipCode(qi repository.QueryInterface, zipcode string) (ZipCode, error) {
 
 	command := "SELECT * FROM zipcodes WHERE zipcode = ? COLLATE NOCASE"
 	row := qi.QueryRow(command, zipcode)

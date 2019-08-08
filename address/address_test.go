@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"smile/repository"
 	"testing"
 )
 
@@ -32,7 +33,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestNewAddress(t *testing.T) {
-	db, _ := ConnectSqlDB(absPath)
+	db, _ := repository.ConnectSqlDB(absPath)
 
 	t.Run("New address test", func(t *testing.T) {
 		expected := Address{
@@ -159,7 +160,7 @@ func TestValidation(t *testing.T) {
 
 func TestGetProvinces(t *testing.T) {
 
-	db, _ := ConnectSqlDB(absPath)
+	db, _ := repository.ConnectSqlDB(absPath)
 
 	t.Run("Get provinces test", func(t *testing.T) {
 		expected := 77
@@ -176,7 +177,7 @@ func TestGetProvinces(t *testing.T) {
 
 func TestGetDistrictsByProvince(t *testing.T) {
 
-	db, _ := ConnectSqlDB(absPath)
+	db, _ := repository.ConnectSqlDB(absPath)
 
 	t.Run("Get district by province test", func(t *testing.T) {
 
@@ -205,7 +206,7 @@ func TestGetDistrictsByProvince(t *testing.T) {
 
 func TestGetZipcodesByDistrict(t *testing.T) {
 
-	db, _ := ConnectSqlDB(absPath)
+	db, _ := repository.ConnectSqlDB(absPath)
 
 	t.Run("Get zipcode by district test", func(t *testing.T) {
 
@@ -233,7 +234,7 @@ func TestGetZipcodesByDistrict(t *testing.T) {
 
 func TestQueryRow(t *testing.T) {
 
-	db, _ := ConnectSqlDB(absPath)
+	db, _ := repository.ConnectSqlDB(absPath)
 
 	t.Run("Query row test", func(t *testing.T) {
 
