@@ -30,5 +30,5 @@ func (api *GetDistrictsByProvince) GetHandler(qi repository.QueryInterface, w ht
 }
 
 func (api *GetDistrictsByProvince) GetAPIName() string {
-	return "/getDistrictsByProvince"
+	return "/getDistrictByProvince"
 }

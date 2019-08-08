@@ -29,4 +29,3 @@ func (api *NewAddress) GetHandler(qi repository.QueryInterface, w http.ResponseW
 func (api *NewAddress) GetAPIName() string {
 	return "/newAddress"
 }
-}
