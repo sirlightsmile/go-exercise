@@ -7,9 +7,7 @@ import (
 	"smile/repository"
 )
 
-type NewAddress struct{
-	handler Handler
-}
+type NewAddress struct{}
 
 func (api *NewAddress) GetHandler(qi repository.QueryInterface, w http.ResponseWriter, r *http.Request) {
 	var task struct {
@@ -30,4 +28,5 @@ func (api *NewAddress) GetHandler(qi repository.QueryInterface, w http.ResponseW
 
 func (api *NewAddress) GetAPIName() string {
 	return "/newAddress"
+}
 }

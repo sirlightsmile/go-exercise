@@ -8,7 +8,6 @@ import (
 )
 
 type GetZipcodesByDistrict struct {
-	handler Handler
 }
 
 func (api *GetZipcodesByDistrict) GetHandler(qi repository.QueryInterface, w http.ResponseWriter, r *http.Request) {

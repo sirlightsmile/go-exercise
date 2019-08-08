@@ -8,7 +8,6 @@ import (
 )
 
 type GetProvinceAPI struct {
-	handler Handler
 }
 
 func (api *GetProvinceAPI) GetHandler(qi repository.QueryInterface, w http.ResponseWriter, r *http.Request) {

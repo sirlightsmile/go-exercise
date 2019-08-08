@@ -8,7 +8,6 @@ import (
 )
 
 type Validate struct {
-	handler Handler
 }
 
 func (api *Validate) GetHandler(qi repository.QueryInterface, w http.ResponseWriter, r *http.Request) {
