@@ -7,8 +7,7 @@ import (
 	"smile/repository"
 )
 
-type Validate struct {
-}
+type Validate struct{}
 
 func (api *Validate) GetHandler(qi repository.QueryInterface, w http.ResponseWriter, r *http.Request) {
 	var task address.Address

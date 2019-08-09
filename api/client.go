@@ -17,9 +17,10 @@ func Init(db repository.QueryInterface, port string) {
 	}
 
 	for _, v := range apiList {
+		apiHandler := v
 		fmt.Println("API name : ", v.GetAPIName())
-		http.HandleFunc(v.GetAPIName(), func(w http.ResponseWriter, r *http.Request) {
-			v.GetHandler(db, w, r)
+		http.HandleFunc(apiHandler.GetAPIName(), func(w http.ResponseWriter, r *http.Request) {
+			apiHandler.GetHandler(db, w, r)
 		})
 	}
 

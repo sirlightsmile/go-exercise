@@ -7,8 +7,7 @@ import (
 	"smile/repository"
 )
 
-type GetDistrictsByProvince struct {
-}
+type GetDistrictsByProvince struct{}
 
 func (api *GetDistrictsByProvince) GetHandler(qi repository.QueryInterface, w http.ResponseWriter, r *http.Request) {
 	type Task struct {

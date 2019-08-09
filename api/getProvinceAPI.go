@@ -7,8 +7,7 @@ import (
 	"smile/repository"
 )
 
-type GetProvinceAPI struct {
-}
+type GetProvinceAPI struct{}
 
 func (api *GetProvinceAPI) GetHandler(qi repository.QueryInterface, w http.ResponseWriter, r *http.Request) {
 	provinces, err := address.GetProvinces(qi)
