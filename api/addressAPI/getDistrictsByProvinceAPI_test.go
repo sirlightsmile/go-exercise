@@ -20,7 +20,7 @@ func TestGetDistrictsByProvinceAPI(t *testing.T) {
 
 	ad := address.Init(db)
 
-	t.Run("get district by province api test", func(t *testing.T) {
+	t.Run("get district by province api test", func(t *testing.T) {\
 		testApi := &GetDistrictsByProvince{}
 
 		req, err := http.NewRequest("GET", testApi.GetAPIName(), strings.NewReader(`{"Province" : "Bangkok"}`))
