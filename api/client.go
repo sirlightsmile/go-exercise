@@ -24,5 +24,5 @@ func Init(db repository.QueryInterface, port string) {
 		})
 	}
 
-	http.ListenAndServe(":4000", nil)
+	http.ListenAndServe(port, nil)
 }
