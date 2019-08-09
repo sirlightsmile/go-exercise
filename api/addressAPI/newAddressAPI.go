@@ -11,10 +11,10 @@ type NewAddress struct{}
 
 func (api *NewAddress) GetHandler(qi repository.QueryInterface, w http.ResponseWriter, r *http.Request) {
 	var task struct {
-		Province    string
-		District    string
-		SubDistrict string
-		ZipCode     string
+		Province    string `json:"Province"`
+		District    string `json:"District"`
+		SubDistrict string `json:"SubDistrict"`
+		ZipCode     string `json:"Zipcode"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {

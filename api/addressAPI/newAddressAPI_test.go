@@ -9,13 +9,14 @@ import (
 	"testing"
 )
 
-func TestValidaionAPI(t *testing.T) {
+func TestNewAddressAPI(t *testing.T) {
 	absPath, _ := filepath.Abs("../data/th_address.db")
 	db, _ := repository.ConnectSqlDB(absPath)
 
-	testApi := &Validate{}
+	testApi := &NewAddress{}
 
-	req, err := http.NewRequest("GET", testApi.GetAPIName(), strings.NewReader(`{"SubDistrict":{"ID":1,"Code":"100101","Name":"พระบรมมหาราชวัง","NameEng":"Phra Borom Maha Ratchawang","GeoID":2,"AmphurID":1,"ProvinceID":1},"District":{"ID":1,"Code":"1001","Name":"เขตพระนคร   ","NameEng":"Khet Phra Nakhon","GeoID":2,"ProvinceID":1},"Province":{"ID":1,"Code":"10","Name":"กรุงเทพมหานคร   ","NameEng":"Bangkok","GeoID":2},"ZipCode":{"ID":1,"SubDistrict":"100101","ZipCode":"10200"}}`))
+	req, err := http.NewRequest("GET", testApi.GetAPIName(), strings.NewReader(`{"Province":"Bangkok","District":"Khet Phra Nakhon","SubDistrict":"Phra Borom Maha Ratchawang","Zipcode" : "10200"}`))
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,7 +33,7 @@ func TestValidaionAPI(t *testing.T) {
 			status, http.StatusOK)
 	}
 
-	expected := `true` + "\n" //encode auto new line. response need \n
+	expected := `{"SubDistrict":{"ID":1,"Code":"100101","Name":"พระบรมมหาราชวัง","NameEng":"Phra Borom Maha Ratchawang","GeoID":2,"AmphurID":1,"ProvinceID":1},"District":{"ID":1,"Code":"1001","Name":"เขตพระนคร   ","NameEng":"Khet Phra Nakhon","GeoID":2,"ProvinceID":1},"Province":{"ID":1,"Code":"10","Name":"กรุงเทพมหานคร   ","NameEng":"Bangkok","GeoID":2},"ZipCode":{"ID":1,"SubDistrict":"100101","ZipCode":"10200"}}` + "\n" //encode auto new line. response need \n
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
