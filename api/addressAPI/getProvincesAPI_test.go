@@ -45,7 +45,7 @@ func TestGetProvinceAPI(t *testing.T) {
 		expected := 77
 		if len(provinces) != expected {
 			t.Errorf("handler returned unexpected body: got %v want %v",
-				rr.Body.String(), expected)
+				len(provinces), expected)
 		}
 	})
 }
