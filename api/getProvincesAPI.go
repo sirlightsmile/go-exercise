@@ -18,5 +18,5 @@ func (api *GetProvinceAPI) GetHandler(qi repository.QueryInterface, w http.Respo
 }
 
 func (api *GetProvinceAPI) GetAPIName() string {
-	return "/getProvince"
+	return "/getProvinces"
 }
