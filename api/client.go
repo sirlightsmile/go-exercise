@@ -3,17 +3,18 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"smile/api/addressAPI"
 	"smile/repository"
 )
 
 func Init(db repository.QueryInterface, port string) {
 
 	apiList := []Handler{
-		&GetProvinceAPI{},
-		&GetDistrictsByProvince{},
-		&GetZipcodesByDistrict{},
-		&NewAddress{},
-		&Validate{},
+		&addressAPI.GetProvinceAPI{},
+		&addressAPI.GetDistrictsByProvince{},
+		&addressAPI.GetZipcodesByDistrict{},
+		&addressAPI.NewAddress{},
+		&addressAPI.Validate{},
 	}
 
 	for _, v := range apiList {

@@ -1,4 +1,4 @@
-package api
+package addressAPI
 
 import (
 	"encoding/json"
