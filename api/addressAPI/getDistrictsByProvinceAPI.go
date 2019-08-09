@@ -20,10 +20,7 @@ func (api *GetDistrictsByProvince) GetHandler(qi repository.QueryInterface, w ht
 		return
 	}
 
-	districts, err := address.GetDistrictsByProvince(qi, task.Province)
-	if err != nil {
-		panic(err)
-	}
+	districts, _ := address.GetDistrictsByProvince(qi, task.Province)
 
 	json.NewEncoder(w).Encode(districts)
 }

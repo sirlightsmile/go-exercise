@@ -10,10 +10,7 @@ import (
 type GetProvinceAPI struct{}
 
 func (api *GetProvinceAPI) GetHandler(qi repository.QueryInterface, w http.ResponseWriter, r *http.Request) {
-	provinces, err := address.GetProvinces(qi)
-	if err != nil {
-		panic(err)
-	}
+	provinces, _ := address.GetProvinces(qi)
 	json.NewEncoder(w).Encode(provinces)
 }
 

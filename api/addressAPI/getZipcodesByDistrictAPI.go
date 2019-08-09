@@ -20,10 +20,7 @@ func (api *GetZipcodesByDistrict) GetHandler(qi repository.QueryInterface, w htt
 		return
 	}
 
-	zipcodes, err := address.GetZipcodesByDistrict(qi, task.District)
-	if err != nil {
-		panic(err)
-	}
+	zipcodes, _ := address.GetZipcodesByDistrict(qi, task.District)
 
 	json.NewEncoder(w).Encode(zipcodes)
 }
