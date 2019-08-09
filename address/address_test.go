@@ -35,6 +35,9 @@ func TestMain(m *testing.M) {
 func TestNewAddress(t *testing.T) {
 	db, _ := repository.ConnectSqlDB(absPath)
 
+	//address interface
+	ad := Init(db)
+
 	t.Run("New address test", func(t *testing.T) {
 		expected := Address{
 			Province: Province{
@@ -75,12 +78,12 @@ func TestNewAddress(t *testing.T) {
 			ZipCode:     ZipCode{},
 		}
 
-		result := NewAddress(db, "Phra Borom Maha Ratchawang", "Khet Phra Nakhon", "Bangkok", "10200")
+		result := ad.NewAddress("Phra Borom Maha Ratchawang", "Khet Phra Nakhon", "Bangkok", "10200")
 		if !reflect.DeepEqual(expected, result) {
 			t.Errorf("Failed, expected : \n\n%#v\n\nreality : \n\n%#v", expected, result)
 		}
 
-		result = NewAddress(db, "?", "?", "?", "?")
+		result = ad.NewAddress("?", "?", "?", "?")
 		if !reflect.DeepEqual(falseExpected, result) {
 			t.Errorf("Failed, expected : \n\n%#v\n\nreality : \n\n%#v", expected, result)
 		}
@@ -88,6 +91,9 @@ func TestNewAddress(t *testing.T) {
 }
 
 func TestValidation(t *testing.T) {
+
+	//address interface
+	ad := Init(nil)
 
 	t.Run("Validation test", func(t *testing.T) {
 		validAddress := Address{
@@ -151,7 +157,7 @@ func TestValidation(t *testing.T) {
 		}
 
 		for k, v := range expectedStruct {
-			if Validate(k) != v {
+			if ad.Validate(k) != v {
 				t.Errorf("Validation test failed")
 			}
 		}
@@ -162,9 +168,12 @@ func TestGetProvinces(t *testing.T) {
 
 	db, _ := repository.ConnectSqlDB(absPath)
 
+	//address interface
+	ad := Init(db)
+
 	t.Run("Get provinces test", func(t *testing.T) {
 		expected := 77
-		result, err := GetProvinces(db)
+		result, err := ad.GetProvinces()
 		if err != nil {
 			t.Errorf("Error: %v", err)
 		}
@@ -179,6 +188,9 @@ func TestGetDistrictsByProvince(t *testing.T) {
 
 	db, _ := repository.ConnectSqlDB(absPath)
 
+	//address interface
+	ad := Init(db)
+
 	t.Run("Get district by province test", func(t *testing.T) {
 
 		expectedResult := []string{
@@ -190,7 +202,7 @@ func TestGetDistrictsByProvince(t *testing.T) {
 			"1106",
 		}
 
-		result, err := GetDistrictsByProvince(db, "Samut Prakan")
+		result, err := ad.GetDistrictsByProvince("Samut Prakan")
 		if err != nil {
 			t.Errorf("Error: %v", err)
 		}
@@ -208,6 +220,9 @@ func TestGetZipcodesByDistrict(t *testing.T) {
 
 	db, _ := repository.ConnectSqlDB(absPath)
 
+	//address interface
+	ad := Init(db)
+
 	t.Run("Get zipcode by district test", func(t *testing.T) {
 
 		expectedResult := []string{
@@ -218,7 +233,7 @@ func TestGetZipcodesByDistrict(t *testing.T) {
 			"100405",
 		}
 
-		result, err := GetZipcodesByDistrict(db, "Khet Bang Rak")
+		result, err := ad.GetZipcodesByDistrict("Khet Bang Rak")
 		if err != nil {
 			t.Errorf("Error: %v", err)
 		}

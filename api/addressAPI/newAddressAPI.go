@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 	"smile/address"
-	"smile/repository"
 )
 
 type NewAddress struct{}
 
-func (api *NewAddress) GetHandler(qi repository.QueryInterface, w http.ResponseWriter, r *http.Request) {
+func (api *NewAddress) GetHandler(ai address.AddressModel, w http.ResponseWriter, r *http.Request) {
 	var task struct {
 		Province    string `json:"Province"`
 		District    string `json:"District"`
@@ -22,7 +21,7 @@ func (api *NewAddress) GetHandler(qi repository.QueryInterface, w http.ResponseW
 		return
 	}
 
-	newAddress := address.NewAddress(qi, task.SubDistrict, task.District, task.Province, task.ZipCode)
+	newAddress := ai.NewAddress(task.SubDistrict, task.District, task.Province, task.ZipCode)
 	json.NewEncoder(w).Encode(newAddress)
 }
 

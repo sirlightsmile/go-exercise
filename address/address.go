@@ -10,12 +10,18 @@ import "smile/repository"
 //  - create Address method:
 //	- Validate() - return true if the address is valid
 
-func NewAddress(qi repository.QueryInterface, subDistrictName string, districtName string, provinceName string, zipcode string) Address {
+func Init(ri repository.QueryInterface) AddressModel {
+	var ad AddressModel
+	ad.repo = ri
+	return ad
+}
 
-	subdistict, _ := GetSubDistrictByName(qi, subDistrictName)
-	district, _ := GetAmphurByName(qi, districtName)
-	province, _ := GetProvinceByName(qi, provinceName)
-	zipCode, _ := GetZipCodeModelByZipCode(qi, zipcode)
+func (ad *AddressModel) NewAddress(subDistrictName string, districtName string, provinceName string, zipcode string) Address {
+
+	subdistict, _ := GetSubDistrictByName(ad.repo, subDistrictName)
+	district, _ := GetAmphurByName(ad.repo, districtName)
+	province, _ := GetProvinceByName(ad.repo, provinceName)
+	zipCode, _ := GetZipCodeModelByZipCode(ad.repo, zipcode)
 
 	address := Address{
 		SubDistrict: subdistict,
@@ -27,14 +33,14 @@ func NewAddress(qi repository.QueryInterface, subDistrictName string, districtNa
 	return address
 }
 
-func Validate(address Address) bool {
+func (ad *AddressModel) Validate(address Address) bool {
 	return address.ZipCode.SubDistrict == address.SubDistrict.Code &&
 		address.SubDistrict.AmphurID == address.District.ID &&
 		address.District.ProvinceID == address.Province.ID
 }
 
-func GetProvinces(qi repository.QueryInterface) ([]Province, error) {
-	rows, err := qi.Query("SELECT * FROM provinces")
+func (ad *AddressModel) GetProvinces() ([]Province, error) {
+	rows, err := ad.repo.Query("SELECT * FROM provinces")
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +59,7 @@ func GetProvinces(qi repository.QueryInterface) ([]Province, error) {
 	return provinces, nil
 }
 
-func GetDistrictsByProvince(qi repository.QueryInterface, provinceName string) ([]Amphur, error) {
+func (ad *AddressModel) GetDistrictsByProvince(provinceName string) ([]Amphur, error) {
 
 	query := `
 		SELECT x.* FROM amphures x
@@ -61,7 +67,7 @@ func GetDistrictsByProvince(qi repository.QueryInterface, provinceName string) (
 		WHERE UPPER(y.province_name_eng) = UPPER(?)
 	`
 
-	rows, err := qi.Query(query, provinceName)
+	rows, err := ad.repo.Query(query, provinceName)
 	if err != nil {
 		return nil, err
 	}
@@ -79,14 +85,14 @@ func GetDistrictsByProvince(qi repository.QueryInterface, provinceName string) (
 	return amphures, nil
 }
 
-func GetZipcodesByDistrict(qi repository.QueryInterface, districtName string) ([]ZipCode, error) {
+func (ad *AddressModel) GetZipcodesByDistrict(districtName string) ([]ZipCode, error) {
 
 	query := `
 		SELECT * FROM zipcodes z
 		WHERE district_code COLLATE NOCASE IN 
 		(SELECT district_code FROM districts WHERE amphur_id IN (SELECT amphur_id FROM amphures WHERE UPPER(amphur_name_eng) = UPPER(?)))
 	`
-	rows, err := qi.Query(query, districtName)
+	rows, err := ad.repo.Query(query, districtName)
 	if err != nil {
 		return nil, err
 	}

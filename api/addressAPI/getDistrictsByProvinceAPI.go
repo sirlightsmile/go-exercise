@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 	"smile/address"
-	"smile/repository"
 )
 
 type GetDistrictsByProvince struct{}
 
-func (api *GetDistrictsByProvince) GetHandler(qi repository.QueryInterface, w http.ResponseWriter, r *http.Request) {
+func (api *GetDistrictsByProvince) GetHandler(ai address.AddressModel, w http.ResponseWriter, r *http.Request) {
 	type Task struct {
 		Province string
 	}
@@ -20,7 +19,7 @@ func (api *GetDistrictsByProvince) GetHandler(qi repository.QueryInterface, w ht
 		return
 	}
 
-	districts, _ := address.GetDistrictsByProvince(qi, task.Province)
+	districts, _ := ai.GetDistrictsByProvince(task.Province)
 
 	json.NewEncoder(w).Encode(districts)
 }

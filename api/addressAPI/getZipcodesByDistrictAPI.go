@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 	"smile/address"
-	"smile/repository"
 )
 
 type GetZipcodesByDistrict struct{}
 
-func (api *GetZipcodesByDistrict) GetHandler(qi repository.QueryInterface, w http.ResponseWriter, r *http.Request) {
+func (api *GetZipcodesByDistrict) GetHandler(ai address.AddressModel, w http.ResponseWriter, r *http.Request) {
 	type Task struct {
 		District string
 	}
@@ -20,7 +19,7 @@ func (api *GetZipcodesByDistrict) GetHandler(qi repository.QueryInterface, w htt
 		return
 	}
 
-	zipcodes, _ := address.GetZipcodesByDistrict(qi, task.District)
+	zipcodes, _ := ai.GetZipcodesByDistrict(task.District)
 
 	json.NewEncoder(w).Encode(zipcodes)
 }

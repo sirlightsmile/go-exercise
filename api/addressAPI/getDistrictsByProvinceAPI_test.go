@@ -18,6 +18,8 @@ func TestGetDistrictsByProvinceAPI(t *testing.T) {
 		panic(err)
 	}
 
+	ad := address.Init(db)
+
 	t.Run("get district by province api test", func(t *testing.T) {
 		testApi := &GetDistrictsByProvince{}
 
@@ -27,7 +29,7 @@ func TestGetDistrictsByProvinceAPI(t *testing.T) {
 		}
 
 		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			testApi.GetHandler(db, w, r)
+			testApi.GetHandler(&ad, w, r)
 		})
 
 		rr := httptest.NewRecorder()

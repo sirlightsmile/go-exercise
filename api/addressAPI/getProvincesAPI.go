@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"net/http"
 	"smile/address"
-	"smile/repository"
 )
 
 type GetProvinceAPI struct{}
 
-func (api *GetProvinceAPI) GetHandler(qi repository.QueryInterface, w http.ResponseWriter, r *http.Request) {
-	provinces, _ := address.GetProvinces(qi)
+func (api *GetProvinceAPI) GetHandler(ai address.AddressModel, w http.ResponseWriter, r *http.Request) {
+
+	provinces, _ := ai.GetProvinces()
 	json.NewEncoder(w).Encode(provinces)
 }
 
