@@ -31,8 +31,28 @@ func TestValidaionAPI(t *testing.T) {
 			status, http.StatusOK)
 	}
 
-	// Check the response body is what we expect.
 	expected := `true` + "\n" //encode auto new line. response need \n
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got %v want %v",
+			rr.Body.String(), expected)
+	}
+
+	//bad request test
+	badreq, err := http.NewRequest("GET", "/validate", strings.NewReader(`bad`))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr = httptest.NewRecorder()
+	handler.ServeHTTP(rr, badreq)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusBadRequest)
+	}
+
+	// Check the response body is what we expect.
+	expected = `bad request` + "\n" //encode auto new line. response need \n
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
