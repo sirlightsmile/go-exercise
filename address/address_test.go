@@ -16,19 +16,16 @@ import (
 //  - create Address method:
 //	- Validate() - return true if the address is valid
 
-var absPath string
+var addressManager *AddressManager
 
 func TestMain(m *testing.M) {
-	absPath, _ = filepath.Abs("../data/th_address.db")
-	code := m.Run()
-	os.Exit(code)
+	absPath, _ := filepath.Abs("../data/th_address.db")
+	dbRepo, _ := repository.ConnectSqlDB(absPath)
+	addressManager = Init(dbRepo)
+	os.Exit(m.Run())
 }
 
 func TestNewAddress(t *testing.T) {
-	db, _ := repository.ConnectSqlDB(absPath)
-
-	//address manager
-	ad := Init(db)
 
 	t.Run("New address test", func(t *testing.T) {
 		expected := Address{
@@ -70,12 +67,12 @@ func TestNewAddress(t *testing.T) {
 			ZipCode:     ZipCode{},
 		}
 
-		result := ad.NewAddress("Phra Borom Maha Ratchawang", "Khet Phra Nakhon", "Bangkok", "10200")
+		result := addressManager.NewAddress("Phra Borom Maha Ratchawang", "Khet Phra Nakhon", "Bangkok", "10200")
 		if !reflect.DeepEqual(expected, result) {
 			t.Errorf("Failed, expected : \n\n%#v\n\nreality : \n\n%#v", expected, result)
 		}
 
-		result = ad.NewAddress("?", "?", "?", "?")
+		result = addressManager.NewAddress("?", "?", "?", "?")
 		if !reflect.DeepEqual(falseExpected, result) {
 			t.Errorf("Failed, expected : \n\n%#v\n\nreality : \n\n%#v", expected, result)
 		}
@@ -83,9 +80,6 @@ func TestNewAddress(t *testing.T) {
 }
 
 func TestValidation(t *testing.T) {
-
-	//address manager
-	ad := Init(nil)
 
 	t.Run("Validation test", func(t *testing.T) {
 		validAddress := Address{
@@ -149,7 +143,7 @@ func TestValidation(t *testing.T) {
 		}
 
 		for k, v := range expectedStruct {
-			if ad.Validate(k) != v {
+			if addressManager.Validate(k) != v {
 				t.Errorf("Validation test failed")
 			}
 		}
@@ -158,14 +152,9 @@ func TestValidation(t *testing.T) {
 
 func TestGetProvinces(t *testing.T) {
 
-	db, _ := repository.ConnectSqlDB(absPath)
-
-	//address manager
-	ad := Init(db)
-
 	t.Run("Get provinces test", func(t *testing.T) {
 		expected := 77
-		result, err := ad.GetProvinces()
+		result, err := addressManager.GetProvinces()
 		if err != nil {
 			t.Errorf("Error: %v", err)
 		}
@@ -178,11 +167,6 @@ func TestGetProvinces(t *testing.T) {
 
 func TestGetDistrictsByProvince(t *testing.T) {
 
-	db, _ := repository.ConnectSqlDB(absPath)
-
-	//address manager
-	ad := Init(db)
-
 	t.Run("Get district by province test", func(t *testing.T) {
 
 		expectedResult := []string{
@@ -194,7 +178,7 @@ func TestGetDistrictsByProvince(t *testing.T) {
 			"1106",
 		}
 
-		result, err := ad.GetDistrictsByProvince("Samut Prakan")
+		result, err := addressManager.GetDistrictsByProvince("Samut Prakan")
 		if err != nil {
 			t.Errorf("Error: %v", err)
 		}
@@ -210,11 +194,6 @@ func TestGetDistrictsByProvince(t *testing.T) {
 
 func TestGetZipcodesByDistrict(t *testing.T) {
 
-	db, _ := repository.ConnectSqlDB(absPath)
-
-	//address manager
-	ad := Init(db)
-
 	t.Run("Get zipcode by district test", func(t *testing.T) {
 
 		expectedResult := []string{
@@ -225,7 +204,7 @@ func TestGetZipcodesByDistrict(t *testing.T) {
 			"100405",
 		}
 
-		result, err := ad.GetZipcodesByDistrict("Khet Bang Rak")
+		result, err := addressManager.GetZipcodesByDistrict("Khet Bang Rak")
 		if err != nil {
 			t.Errorf("Error: %v", err)
 		}
@@ -235,34 +214,6 @@ func TestGetZipcodesByDistrict(t *testing.T) {
 			if element.SubDistrict != expected {
 				t.Errorf("Failed, expected : %s reality : %s", expected, element.SubDistrict)
 			}
-		}
-	})
-}
-
-func TestQueryRow(t *testing.T) {
-
-	db, _ := repository.ConnectSqlDB(absPath)
-
-	t.Run("Query row test", func(t *testing.T) {
-
-		row := db.QueryRow(`SELECT * FROM provinces WHERE province_id = 1`)
-
-		var result Province
-		err := row.Scan(&result.ID, &result.Code, &result.Name, &result.NameEng, &result.GeoID)
-		if err != nil {
-			t.Errorf("Error: %v", err)
-		}
-
-		expected := Province{
-			ID:      1,
-			Code:    "10",
-			Name:    "กรุงเทพมหานคร   ",
-			NameEng: "Bangkok",
-			GeoID:   2,
-		}
-
-		if !reflect.DeepEqual(expected, result) {
-			t.Errorf("Failed, expected : %#v reality : %#v", expected, row)
 		}
 	})
 }

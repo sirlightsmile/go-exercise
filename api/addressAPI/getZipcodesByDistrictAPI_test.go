@@ -4,20 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"path/filepath"
 	"smile/address"
-	"smile/repository"
 	"strings"
 	"testing"
 )
 
 func TestGetZipcodesByDistrictAPI(t *testing.T) {
-	absPath, _ := filepath.Abs("../../data/th_address.db")
-	db, err := repository.ConnectSqlDB(absPath)
-	if err != nil {
-		panic(err)
-	}
-	am := address.Init(db)
 
 	t.Run("test get zipcodes by district api test", func(t *testing.T) {
 		testApi := &GetZipcodesByDistrict{}
@@ -28,7 +20,7 @@ func TestGetZipcodesByDistrictAPI(t *testing.T) {
 		}
 
 		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			testApi.GetHandler(am, w, r)
+			testApi.GetHandler(TestManager, w, r)
 		})
 
 		rr := httptest.NewRecorder()
