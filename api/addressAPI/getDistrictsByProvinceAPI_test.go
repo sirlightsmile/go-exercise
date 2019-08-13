@@ -17,10 +17,9 @@ func TestGetDistrictsByProvinceAPI(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+	am := address.Init(db)
 
-	ad := address.Init(db)
-
-	t.Run("get district by province api test", func(t *testing.T) {\
+	t.Run("get district by province api test", func(t *testing.T) {
 		testApi := &GetDistrictsByProvince{}
 
 		req, err := http.NewRequest("GET", testApi.GetAPIName(), strings.NewReader(`{"Province" : "Bangkok"}`))
@@ -29,7 +28,7 @@ func TestGetDistrictsByProvinceAPI(t *testing.T) {
 		}
 
 		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			testApi.GetHandler(&ad, w, r)
+			testApi.GetHandler(am, w, r)
 		})
 
 		rr := httptest.NewRecorder()

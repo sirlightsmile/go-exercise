@@ -2,10 +2,10 @@ package api
 
 import (
 	"net/http"
-	"smile/repository"
+	"smile/address"
 )
 
 type Handler interface {
-	GetHandler(qi repository.QueryInterface, w http.ResponseWriter, r *http.Request)
+	GetHandler(qi *address.AddressManager, w http.ResponseWriter, r *http.Request)
 	GetAPIName() string
 }

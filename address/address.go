@@ -10,13 +10,13 @@ import "smile/repository"
 //  - create Address method:
 //	- Validate() - return true if the address is valid
 
-func Init(ri repository.QueryInterface) AddressModel {
-	var ad AddressModel
+func Init(ri repository.QueryInterface) *AddressManager {
+	var ad AddressManager
 	ad.repo = ri
-	return ad
+	return &ad
 }
 
-func (ad *AddressModel) NewAddress(subDistrictName string, districtName string, provinceName string, zipcode string) Address {
+func (ad *AddressManager) NewAddress(subDistrictName string, districtName string, provinceName string, zipcode string) Address {
 
 	subdistict, _ := GetSubDistrictByName(ad.repo, subDistrictName)
 	district, _ := GetAmphurByName(ad.repo, districtName)
@@ -33,13 +33,13 @@ func (ad *AddressModel) NewAddress(subDistrictName string, districtName string, 
 	return address
 }
 
-func (ad *AddressModel) Validate(address Address) bool {
+func (ad *AddressManager) Validate(address Address) bool {
 	return address.ZipCode.SubDistrict == address.SubDistrict.Code &&
 		address.SubDistrict.AmphurID == address.District.ID &&
 		address.District.ProvinceID == address.Province.ID
 }
 
-func (ad *AddressModel) GetProvinces() ([]Province, error) {
+func (ad *AddressManager) GetProvinces() ([]Province, error) {
 	rows, err := ad.repo.Query("SELECT * FROM provinces")
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (ad *AddressModel) GetProvinces() ([]Province, error) {
 	return provinces, nil
 }
 
-func (ad *AddressModel) GetDistrictsByProvince(provinceName string) ([]Amphur, error) {
+func (ad *AddressManager) GetDistrictsByProvince(provinceName string) ([]Amphur, error) {
 
 	query := `
 		SELECT x.* FROM amphures x
@@ -85,7 +85,7 @@ func (ad *AddressModel) GetDistrictsByProvince(provinceName string) ([]Amphur, e
 	return amphures, nil
 }
 
-func (ad *AddressModel) GetZipcodesByDistrict(districtName string) ([]ZipCode, error) {
+func (ad *AddressManager) GetZipcodesByDistrict(districtName string) ([]ZipCode, error) {
 
 	query := `
 		SELECT * FROM zipcodes z

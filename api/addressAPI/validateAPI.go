@@ -8,14 +8,14 @@ import (
 
 type Validate struct{}
 
-func (api *Validate) GetHandler(ai address.AddressModel, w http.ResponseWriter, r *http.Request) {
+func (api *Validate) GetHandler(am *address.AddressManager, w http.ResponseWriter, r *http.Request) {
 	var task address.Address
 	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
 		http.Error(w, "bad request", http.StatusBadRequest)
 		return
 	}
 
-	valid := ai.Validate(task)
+	valid := am.Validate(task)
 
 	json.NewEncoder(w).Encode(valid)
 }

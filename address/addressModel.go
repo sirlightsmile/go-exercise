@@ -10,7 +10,7 @@ type AddressInterface interface {
 	Validate(address Address) bool
 }
 
-type AddressModel struct {
+type AddressManager struct {
 	repo repository.QueryInterface
 }
 

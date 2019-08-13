@@ -17,6 +17,7 @@ func TestGetZipcodesByDistrictAPI(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+	am := address.Init(db)
 
 	t.Run("test get zipcodes by district api test", func(t *testing.T) {
 		testApi := &GetZipcodesByDistrict{}
@@ -27,7 +28,7 @@ func TestGetZipcodesByDistrictAPI(t *testing.T) {
 		}
 
 		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			testApi.GetHandler(db, w, r)
+			testApi.GetHandler(am, w, r)
 		})
 
 		rr := httptest.NewRecorder()

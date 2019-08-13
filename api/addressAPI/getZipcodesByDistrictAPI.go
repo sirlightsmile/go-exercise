@@ -8,7 +8,7 @@ import (
 
 type GetZipcodesByDistrict struct{}
 
-func (api *GetZipcodesByDistrict) GetHandler(ai address.AddressModel, w http.ResponseWriter, r *http.Request) {
+func (api *GetZipcodesByDistrict) GetHandler(am *address.AddressManager, w http.ResponseWriter, r *http.Request) {
 	type Task struct {
 		District string
 	}
@@ -19,7 +19,7 @@ func (api *GetZipcodesByDistrict) GetHandler(ai address.AddressModel, w http.Res
 		return
 	}
 
-	zipcodes, _ := ai.GetZipcodesByDistrict(task.District)
+	zipcodes, _ := am.GetZipcodesByDistrict(task.District)
 
 	json.NewEncoder(w).Encode(zipcodes)
 }

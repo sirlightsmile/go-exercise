@@ -8,7 +8,7 @@ import (
 
 type GetDistrictsByProvince struct{}
 
-func (api *GetDistrictsByProvince) GetHandler(ai address.AddressModel, w http.ResponseWriter, r *http.Request) {
+func (api *GetDistrictsByProvince) GetHandler(am *address.AddressManager, w http.ResponseWriter, r *http.Request) {
 	type Task struct {
 		Province string
 	}
@@ -19,7 +19,7 @@ func (api *GetDistrictsByProvince) GetHandler(ai address.AddressModel, w http.Re
 		return
 	}
 
-	districts, _ := ai.GetDistrictsByProvince(task.Province)
+	districts, _ := am.GetDistrictsByProvince(task.Province)
 
 	json.NewEncoder(w).Encode(districts)
 }

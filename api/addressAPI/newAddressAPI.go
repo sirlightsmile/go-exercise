@@ -8,7 +8,7 @@ import (
 
 type NewAddress struct{}
 
-func (api *NewAddress) GetHandler(ai address.AddressModel, w http.ResponseWriter, r *http.Request) {
+func (api *NewAddress) GetHandler(am *address.AddressManager, w http.ResponseWriter, r *http.Request) {
 	var task struct {
 		Province    string `json:"Province"`
 		District    string `json:"District"`
@@ -21,7 +21,7 @@ func (api *NewAddress) GetHandler(ai address.AddressModel, w http.ResponseWriter
 		return
 	}
 
-	newAddress := ai.NewAddress(task.SubDistrict, task.District, task.Province, task.ZipCode)
+	newAddress := am.NewAddress(task.SubDistrict, task.District, task.Province, task.ZipCode)
 	json.NewEncoder(w).Encode(newAddress)
 }
 

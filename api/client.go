@@ -3,11 +3,11 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"smile/address"
 	"smile/api/addressAPI"
-	"smile/repository"
 )
 
-func Init(db repository.QueryInterface, port string) {
+func Init(am *address.AddressManager, port string) {
 
 	apiList := []Handler{
 		&addressAPI.GetProvinceAPI{},
@@ -21,7 +21,7 @@ func Init(db repository.QueryInterface, port string) {
 		apiHandler := v
 		fmt.Println("API name : ", v.GetAPIName())
 		http.HandleFunc(apiHandler.GetAPIName(), func(w http.ResponseWriter, r *http.Request) {
-			apiHandler.GetHandler(db, w, r)
+			apiHandler.GetHandler(am, w, r)
 		})
 	}
 

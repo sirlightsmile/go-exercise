@@ -59,6 +59,7 @@ package main
 
 import (
 	"path/filepath"
+	"smile/address"
 	"smile/api"
 	"smile/repository"
 )
@@ -69,12 +70,17 @@ var db *repository.SqlDB
 
 func main() {
 
+	//Init database
 	absPath, err := filepath.Abs(databasePath)
 	checkErr(err)
 	db, err = repository.ConnectSqlDB(absPath)
 	checkErr(err)
 
-	api.Init(db, ":4000")
+	//address manager
+	am := address.Init(db)
+
+	//Init server
+	api.Init(am, ":4000")
 }
 
 func checkErr(err error) {

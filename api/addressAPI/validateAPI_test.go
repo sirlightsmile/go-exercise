@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"smile/address"
 	"smile/repository"
 	"strings"
 	"testing"
@@ -11,7 +12,11 @@ import (
 
 func TestValidaionAPI(t *testing.T) {
 	absPath, _ := filepath.Abs("../../data/th_address.db")
-	db, _ := repository.ConnectSqlDB(absPath)
+	db, err := repository.ConnectSqlDB(absPath)
+	if err != nil {
+		panic(err)
+	}
+	am := address.Init(db)
 
 	t.Run("Validate api test", func(t *testing.T) {
 
@@ -23,7 +28,7 @@ func TestValidaionAPI(t *testing.T) {
 		}
 
 		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			testApi.GetHandler(db, w, r)
+			testApi.GetHandler(am, w, r)
 		})
 
 		rr := httptest.NewRecorder()
