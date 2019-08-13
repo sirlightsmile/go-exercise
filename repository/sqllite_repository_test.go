@@ -67,7 +67,7 @@ func TestQuery(t *testing.T) {
 }
 
 func TestQueryRow(t *testing.T) {
-	t.Run("Test Query", func(t *testing.T) {
+	t.Run("Test Query Row", func(t *testing.T) {
 		queryFull := `SELECT province_name_eng FROM provinces WHERE UPPER(province_name_eng) = UPPER("Bangkok")`
 
 		query := `SELECT province_name_eng FROM provinces WHERE UPPER(province_name_eng) = UPPER(?)`
