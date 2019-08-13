@@ -13,7 +13,6 @@ type SqlDB struct {
 type QueryInterface interface {
 	Query(queryStr string, args ...interface{}) (*sql.Rows, error)
 	QueryRow(queryStr string, args ...interface{}) *sql.Row
-	Close()
 }
 
 const sqlVersion = "sqlite3"
@@ -39,8 +38,4 @@ func (sqlDB *SqlDB) QueryRow(queryStr string, args ...interface{}) *sql.Row {
 	} else {
 		return sqlDB.database.QueryRow(queryStr, args...)
 	}
-}
-
-func (sqlDB *SqlDB) Close() {
-	defer sqlDB.database.Close()
 }
