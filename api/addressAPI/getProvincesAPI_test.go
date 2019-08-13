@@ -19,7 +19,7 @@ func TestGetProvinceAPI(t *testing.T) {
 		}
 
 		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			testApi.GetHandler(TestManager, w, r)
+			testApi.GetHandler(testAddressManager, w, r)
 		})
 
 		rr := httptest.NewRecorder()

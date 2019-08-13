@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-var TestManager *address.AddressManager
+var testAddressManager *address.AddressManager
 
 func TestMain(m *testing.M) {
 	absPath, _ := filepath.Abs("../../data/th_address.db")
@@ -16,7 +16,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	TestManager = address.Init(dbRepo)
+	testAddressManager = address.Init(dbRepo)
 	runTests := m.Run()
 	os.Exit(runTests)
 }
