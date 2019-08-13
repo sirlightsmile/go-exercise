@@ -43,7 +43,7 @@ func TestQuery(t *testing.T) {
 			t.Errorf("Failed, expected : %v reality : %v", expectedCount, count)
 		}
 
-		query := `SELECT COUNT(*) FROM provinces WHERE UPPER(province_name) = UPPER(?)`
+		query := `SELECT COUNT(*) FROM provinces WHERE UPPER(province_name_eng) = UPPER(?)`
 		provinceName := "Bangkok"
 
 		rows, err = dbRepo.Query(query, provinceName)
