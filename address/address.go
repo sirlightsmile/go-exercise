@@ -18,10 +18,10 @@ func Init(ri repository.QueryInterface) *AddressManager {
 
 func (ad *AddressManager) NewAddress(subDistrictName string, districtName string, provinceName string, zipcode string) Address {
 
-	subdistict, _ := GetSubDistrictByName(ad.repo, subDistrictName)
-	district, _ := GetAmphurByName(ad.repo, districtName)
-	province, _ := GetProvinceByName(ad.repo, provinceName)
-	zipCode, _ := GetZipCodeModelByZipCode(ad.repo, zipcode)
+	subdistict, _ := getSubDistrictByName(ad.repo, subDistrictName)
+	district, _ := getAmphurByName(ad.repo, districtName)
+	province, _ := getProvinceByName(ad.repo, provinceName)
+	zipCode, _ := getZipCodeModelByZipCode(ad.repo, zipcode)
 
 	address := Address{
 		SubDistrict: subdistict,
@@ -110,7 +110,7 @@ func (ad *AddressManager) GetZipcodesByDistrict(districtName string) ([]ZipCode,
 	return zipcodes, nil
 }
 
-func GetProvinceByName(qi repository.QueryInterface, name string) (Province, error) {
+func getProvinceByName(qi repository.QueryInterface, name string) (Province, error) {
 
 	command := "SELECT * FROM provinces WHERE TRIM(province_name) = TRIM(?) COLLATE NOCASE OR UPPER(province_name_eng) = UPPER(?)"
 	row := qi.QueryRow(command, name, name)
@@ -122,7 +122,7 @@ func GetProvinceByName(qi repository.QueryInterface, name string) (Province, err
 	return province, nil
 }
 
-func GetSubDistrictByName(qi repository.QueryInterface, name string) (SubDistrict, error) {
+func getSubDistrictByName(qi repository.QueryInterface, name string) (SubDistrict, error) {
 	command := "SELECT * FROM districts WHERE TRIM(district_name) = TRIM(?) COLLATE NOCASE OR UPPER(district_name_eng) = UPPER(?)"
 	row := qi.QueryRow(command, name, name)
 	var subDistrict SubDistrict
@@ -133,7 +133,7 @@ func GetSubDistrictByName(qi repository.QueryInterface, name string) (SubDistric
 	return subDistrict, nil
 }
 
-func GetAmphurByName(qi repository.QueryInterface, name string) (Amphur, error) {
+func getAmphurByName(qi repository.QueryInterface, name string) (Amphur, error) {
 
 	command := "SELECT * FROM amphures WHERE TRIM(amphur_name) = TRIM(?) COLLATE NOCASE OR UPPER(amphur_name_eng) = UPPER(?)"
 	row := qi.QueryRow(command, name, name)
@@ -145,7 +145,7 @@ func GetAmphurByName(qi repository.QueryInterface, name string) (Amphur, error) 
 	return amphur, nil
 }
 
-func GetZipCodeModelByZipCode(qi repository.QueryInterface, zipcode string) (ZipCode, error) {
+func getZipCodeModelByZipCode(qi repository.QueryInterface, zipcode string) (ZipCode, error) {
 
 	command := "SELECT * FROM zipcodes WHERE zipcode = ? COLLATE NOCASE"
 	row := qi.QueryRow(command, zipcode)
