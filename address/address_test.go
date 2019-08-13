@@ -15,15 +15,7 @@ import (
 //
 //  - create Address method:
 //	- Validate() - return true if the address is valid
-/*
-var dbPath string
 
-func TestMain(m *testing.M) {
-	dbPath, _ = filepath.Abs("../data/th_address.db")
-	code := m.Run()
-	os.Exit(code)
-}
-*/
 var absPath string
 
 func TestMain(m *testing.M) {
@@ -35,7 +27,7 @@ func TestMain(m *testing.M) {
 func TestNewAddress(t *testing.T) {
 	db, _ := repository.ConnectSqlDB(absPath)
 
-	//address interface
+	//address manager
 	ad := Init(db)
 
 	t.Run("New address test", func(t *testing.T) {
@@ -92,7 +84,7 @@ func TestNewAddress(t *testing.T) {
 
 func TestValidation(t *testing.T) {
 
-	//address interface
+	//address manager
 	ad := Init(nil)
 
 	t.Run("Validation test", func(t *testing.T) {
@@ -168,7 +160,7 @@ func TestGetProvinces(t *testing.T) {
 
 	db, _ := repository.ConnectSqlDB(absPath)
 
-	//address interface
+	//address manager
 	ad := Init(db)
 
 	t.Run("Get provinces test", func(t *testing.T) {
@@ -188,7 +180,7 @@ func TestGetDistrictsByProvince(t *testing.T) {
 
 	db, _ := repository.ConnectSqlDB(absPath)
 
-	//address interface
+	//address manager
 	ad := Init(db)
 
 	t.Run("Get district by province test", func(t *testing.T) {
@@ -220,7 +212,7 @@ func TestGetZipcodesByDistrict(t *testing.T) {
 
 	db, _ := repository.ConnectSqlDB(absPath)
 
-	//address interface
+	//address manager
 	ad := Init(db)
 
 	t.Run("Get zipcode by district test", func(t *testing.T) {
