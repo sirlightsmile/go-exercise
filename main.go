@@ -81,7 +81,7 @@ func (root *node) print() {
 //
 // - transition from one node to another node (parent -> child) can be done only with new goroutine
 // - that means that every child has to be created in a new goroutine
-// - for example to populate a tree with 7 nodes, you will need to create at least 6 goroutines
+// - for example to populate a tree with 7 nodes, you will need to create at least 6 goroutines (1 is for root)
 // - program must be free of race conditions (go run --race main.go)
 // - you can write additional helper functions if necessary
 //
