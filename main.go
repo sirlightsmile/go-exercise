@@ -4,7 +4,6 @@ import (
 	"fmt"
 )
 
-
 //
 // Go routines
 //
@@ -14,10 +13,9 @@ import (
 // Build and review this program first to understand how it works.
 //
 
-
 type node struct {
-	data int
-	left *node
+	data  int
+	left  *node
 	right *node
 }
 
@@ -38,14 +36,14 @@ func (root *node) populate(height int) {
 	}
 
 	root.left = &node{
-		data: root.data*2,
+		data: root.data * 2,
 	}
 	root.right = &node{
 		data: root.data*2 + 1,
 	}
 
-	root.left.populate(height -1)
-	root.right.populate(height -1)
+	root.left.populate(height - 1)
+	root.right.populate(height - 1)
 }
 
 // print binary tree to console
@@ -64,7 +62,7 @@ func (root *node) print() {
 		if n.left != nil && n.right != nil {
 			queue = append(queue, n.left)
 			queue = append(queue, n.right)
-			depth ++
+			depth++
 
 			if (depth & (depth - 1)) == 0 {
 				fmt.Println()
@@ -75,7 +73,6 @@ func (root *node) print() {
 	fmt.Println()
 }
 
-
 // populate binary tree until it reaches height analogically to `populate` function
 // restrictions:
 //
@@ -85,17 +82,30 @@ func (root *node) print() {
 // - program must be free of race conditions (go run --race main.go)
 // - you can write additional helper functions if necessary
 //
-func (root* node) goPopulate(height int) {
-}
+func (root *node) goPopulate(height int) {
 
+	if height <= 0 {
+		return
+	}
+
+	root.left = &node{
+		data: root.data * 2,
+	}
+	root.right = &node{
+		data: root.data*2 + 1,
+	}
+
+	go root.left.goPopulate(height - 1)
+	go root.right.goPopulate(height - 1)
+}
 
 func main() {
 
 	tree := node{data: 1}
 
-	tree.populate(5)
+	//tree.populate(5)
 
-	//tree.goPopulate(5)
+	go tree.goPopulate(5)
 
 	tree.print()
 }
