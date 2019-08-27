@@ -16,7 +16,23 @@ package main
 
 func PromiseAll(fns ...func() (interface{}, error)) ([]interface{}, error) {
 
-	return nil, nil
+	count := len(fns)
+	ch := make(chan interface{}, count)
+
+	var result []interface{}
+
+	for _, fn := range fns {
+		r, err := fn()
+
+		if err != nil {
+			return nil, err
+		}
+
+		ch <- r
+		result = append(result, <-ch)
+	}
+
+	return result, nil
 }
 
 func main() {
