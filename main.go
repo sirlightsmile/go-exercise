@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sync"
 )
 
 //
@@ -82,9 +83,10 @@ func (root *node) print() {
 // - program must be free of race conditions (go run --race main.go)
 // - you can write additional helper functions if necessary
 //
-func (root *node) goPopulate(height int) {
+func (root *node) goPopulate(height int, wg *sync.WaitGroup) {
 
 	if height <= 0 {
+		wg.Done()
 		return
 	}
 
@@ -95,8 +97,13 @@ func (root *node) goPopulate(height int) {
 		data: root.data*2 + 1,
 	}
 
-	go root.left.goPopulate(height - 1)
-	go root.right.goPopulate(height - 1)
+	var subWG sync.WaitGroup
+	subWG.Add(2)
+	go root.left.goPopulate(height-1, &subWG)
+	go root.right.goPopulate(height-1, &subWG)
+	subWG.Wait()
+
+	wg.Done()
 }
 
 func main() {
@@ -105,7 +112,10 @@ func main() {
 
 	//tree.populate(5)
 
-	go tree.goPopulate(5)
+	var mainWG sync.WaitGroup
+	mainWG.Add(1)
+	go tree.goPopulate(5, &mainWG)
+	mainWG.Wait()
 
 	tree.print()
 }
