@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 	"time"
 )
 
@@ -19,17 +20,27 @@ import (
 //
 //
 
+type FuncResult struct {
+	index  int
+	result interface{}
+}
+
+// func (f FuncResult) Less(i, j int) bool
+// {
+// 	return f[i].index < f[j].index
+// }
+
 func PromiseAll(fns ...func() (interface{}, error)) ([]interface{}, error) {
 
 	count := len(fns)
-	ch := make(chan interface{}, count)
+	ch := make(chan FuncResult, count)
 	chErr := make(chan error)
 
-	var results []interface{}
+	var results []FuncResult
 
-	for _, fn := range fns {
+	for i, fn := range fns {
 
-		go func(goFn func() (interface{}, error)) {
+		go func(goFn func() (interface{}, error), index int) {
 			fmt.Println("function loop run")
 			fnResult, err := goFn()
 
@@ -38,8 +49,13 @@ func PromiseAll(fns ...func() (interface{}, error)) ([]interface{}, error) {
 				return
 			}
 
-			ch <- fnResult
-		}(fn)
+			fnr := FuncResult{
+				index:  index,
+				result: fnResult,
+			}
+
+			ch <- fnr
+		}(fn, i)
 	}
 
 	for {
@@ -49,8 +65,18 @@ func PromiseAll(fns ...func() (interface{}, error)) ([]interface{}, error) {
 		case rs := <-ch:
 			results = append(results, rs)
 			fmt.Println("function append")
+
 			if len(results) == count {
-				return results, nil
+				sort.Slice(results, func(i, j int) bool {
+					return results[i].index < results[j].index
+				})
+
+				var r []interface{}
+				for _, v := range results {
+					r = append(r, v.result)
+				}
+
+				return r, nil
 			}
 		}
 	}
