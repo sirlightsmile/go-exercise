@@ -25,36 +25,31 @@ type FuncResult struct {
 	result interface{}
 }
 
-// func (f FuncResult) Less(i, j int) bool
-// {
-// 	return f[i].index < f[j].index
-// }
-
 func PromiseAll(fns ...func() (interface{}, error)) ([]interface{}, error) {
 
 	count := len(fns)
 	ch := make(chan FuncResult, count)
 	chErr := make(chan error)
 
-	var results []FuncResult
+	var frs []FuncResult
 
 	for i, fn := range fns {
 
 		go func(goFn func() (interface{}, error), index int) {
 			fmt.Println("function loop run")
-			fnResult, err := goFn()
+			r, err := goFn()
 
 			if err != nil {
 				chErr <- err
 				return
 			}
 
-			fnr := FuncResult{
+			fr := FuncResult{
 				index:  index,
-				result: fnResult,
+				result: r,
 			}
 
-			ch <- fnr
+			ch <- fr
 		}(fn, i)
 	}
 
@@ -63,16 +58,16 @@ func PromiseAll(fns ...func() (interface{}, error)) ([]interface{}, error) {
 		case err := <-chErr:
 			return nil, err
 		case rs := <-ch:
-			results = append(results, rs)
+			frs = append(frs, rs)
 			fmt.Println("function append")
 
-			if len(results) == count {
-				sort.Slice(results, func(i, j int) bool {
-					return results[i].index < results[j].index
+			if len(frs) == count {
+				sort.Slice(frs, func(i, j int) bool {
+					return frs[i].index < frs[j].index
 				})
 
 				var r []interface{}
-				for _, v := range results {
+				for _, v := range frs {
 					r = append(r, v.result)
 				}
 
