@@ -23,27 +23,37 @@ func PromiseAll(fns ...func() (interface{}, error)) ([]interface{}, error) {
 
 	count := len(fns)
 	ch := make(chan interface{}, count)
+	chErr := make(chan error)
 
-	var result []interface{}
+	var results []interface{}
 
 	for _, fn := range fns {
-		r, err := fn()
 
-		if err != nil {
+		go func(goFn func() (interface{}, error)) {
+			fmt.Println("function loop run")
+			fnResult, err := goFn()
+
+			if err != nil {
+				chErr <- err
+				return
+			}
+
+			ch <- fnResult
+		}(fn)
+	}
+
+	for {
+		select {
+		case err := <-chErr:
 			return nil, err
+		case rs := <-ch:
+			results = append(results, rs)
+			fmt.Println("function append")
+			if len(results) == count {
+				return results, nil
+			}
 		}
-
-		fmt.Println("function run")
-
-		ch <- r
 	}
-
-	for i := 0; i < count; i++ {
-		result = append(result, <-ch)
-		fmt.Println("function append")
-	}
-
-	return result, nil
 }
 
 func main() {
