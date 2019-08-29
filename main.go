@@ -1,5 +1,10 @@
 package main
 
+import (
+	"fmt"
+	"time"
+)
+
 //
 // Go routines #2
 //
@@ -28,12 +33,45 @@ func PromiseAll(fns ...func() (interface{}, error)) ([]interface{}, error) {
 			return nil, err
 		}
 
+		fmt.Println("function run")
+
 		ch <- r
+	}
+
+	for i := 0; i < count; i++ {
 		result = append(result, <-ch)
+		fmt.Println("function append")
 	}
 
 	return result, nil
 }
 
 func main() {
+	result, e := PromiseAll(
+		func() (interface{}, error) {
+			time.Sleep(5 * time.Second)
+			return nil, nil
+		},
+		func() (interface{}, error) {
+			return 1 + 2, nil
+		},
+		func() (interface{}, error) {
+			return 6 * 6, nil
+		},
+		func() (interface{}, error) {
+			time.Sleep(1 * time.Second)
+			return true, nil
+		},
+		func() (interface{}, error) {
+			return "result", nil
+		},
+	)
+
+	if e != nil {
+		panic(e)
+	}
+
+	for _, v := range result {
+		fmt.Println(v)
+	}
 }
