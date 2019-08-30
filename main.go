@@ -1,23 +1,37 @@
 package main
 
 //
-// Go routines #2
-//
-//
-// Implement PromiseAll function. The function implements concurrent execution of 1 or more functions and return
-// result as an array. If any of the functions has error return an empty array and error (don't wait for other
-// routines to finish). The result array must be sorted to match the order of the input functions.
-// Refer to test file for example input and output.  All tests must pass.
-// Implementation must be free of race conditions (go test --race).
-//
-// Hint: one of the possible implementation uses waitGroup, channel and range over channel.
-//
+// Goroutines #3
 //
 
-func PromiseAll(fns ...func() (interface{}, error)) ([]interface{}, error) {
+//
+// Implement fixed size blocking queue, the queue must be thread-safe
+//
+// blocking queue is a queue that works same as normal queue but blocks enqueue/dequeue until the operation is available
+//
+// - to create a queue use function NewQueue(capacity int) *Queue, the capacity represents maximum elements of the queue
+// - the queue should work with multiple goroutines, for example one routine enqueuing, two other routines are dequeueing
+//
 
-	return nil, nil
+
+type Queue interface {
+
+	// enqueue element into queue, if the size of the queue is >= capacity, the function blocks until the size is < capacity
+	Enqueue(interface{})
+
+	// dequeue element from queue, if the size is 0, the function blocks until the size > 0
+	Dequeue() interface{}
+
+	// returns current size of the queue
+	Size() int
+
+	// returns capacity of the queue
+	Capacity() int
+
+	// clear the queue, size will be 0
+	Clear()
 }
+
 
 func main() {
 }
