@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"sort"
 	"time"
 )
 
@@ -62,13 +61,9 @@ func PromiseAll(fns ...func() (interface{}, error)) ([]interface{}, error) {
 			fmt.Println("function append")
 
 			if len(frs) == count {
-				sort.Slice(frs, func(i, j int) bool {
-					return frs[i].index < frs[j].index
-				})
-
-				var r []interface{}
+				r := make([]interface{}, count)
 				for _, v := range frs {
-					r = append(r, v.result)
+					r[v.index] = v.result
 				}
 
 				return r, nil
