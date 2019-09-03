@@ -1,62 +1,95 @@
 package main
 
 import (
-	"errors"
-	"gotest.tools/assert"
+	"sync"
 	"testing"
-	"time"
 )
 
-func TestPromiseAll(t *testing.T) {
+// test 1 producer - 1 consumer
+func TestQueue(t *testing.T) {
+	q := NewQueue(10)
 
-	result, e := PromiseAll(
-		func() (interface{}, error) {
-			time.Sleep(5 * time.Second)
-			return nil, nil
-		},
-		func() (interface{}, error) {
-			return 1+2, nil
-		},
-		func() (interface{}, error) {
-			return 6*6, nil
-		},
-		func() (interface{}, error) {
-			time.Sleep(1 * time.Second)
-			return true, nil
-		},
-		func() (interface{}, error) {
-			return "result", nil
-		},
-	)
+	iteration := 10000000
+	wait := sync.WaitGroup{}
+	wait.Add(2)
 
-	assert.NilError(t, e, "Error should be nil.")
-	assert.Assert(t, len(result) == 5, "Invalid size of the result array.")
-	assert.Assert(t, result[0] == nil, "Invalid output.")
-	assert.Assert(t, result[1] == 3, "Invalid output.")
-	assert.Assert(t, result[2] == 36, "Invalid output.")
-	assert.Assert(t, result[3] == true, "Invalid output.")
-	assert.Assert(t, result[4] == "result", "Invalid output.")
+	go func() {
+		defer wait.Done()
+		for i:=0; i<iteration; i++ {
+			q.Enqueue(i)
+		}
+	}()
+
+	go func() {
+		defer wait.Done()
+		for i:=0; i<iteration; i++ {
+			q.Dequeue()
+		}
+	}()
+
+	wait.Wait()
 }
 
-func TestPromiseAllError(t *testing.T) {
+// test 2 producers - 1 consumer
+func TestQueue2(t *testing.T) {
+	q := NewQueue(10)
 
-	result, e := PromiseAll(
-		func() (interface{}, error) {
-			return 1+2, nil
-		},
-		func() (interface{}, error) {
-			return 6*6, nil
-		},
-		func() (interface{}, error) {
-			time.Sleep(1 * time.Second)
-			return true, nil
-		},
-		func() (interface{}, error) {
-			return nil, errors.New("This is error.")
-		},
-	)
+	iteration := 10000000
+	wait := sync.WaitGroup{}
+	wait.Add(3)
 
-	assert.Assert(t, e  != nil, "Error should not be nil.")
-	assert.Assert(t, e.Error()  == "This is error.", "Invalid error.")
-	assert.Assert(t, len(result) == 0, "Result array must be empty.")
+	go func() {
+		defer wait.Done()
+		for i:=0; i<iteration; i++ {
+			q.Enqueue(i)
+		}
+	}()
+
+	go func() {
+		defer wait.Done()
+		for i:=0; i<iteration/2; i++ {
+			q.Dequeue()
+		}
+	}()
+
+	go func() {
+		defer wait.Done()
+		for i:=0; i<iteration/2; i++ {
+			q.Dequeue()
+		}
+	}()
+
+	wait.Wait()
+}
+
+// test 1 producer - 2 consumers
+func TestQueue3(t *testing.T) {
+	q := NewQueue(10)
+
+	iteration := 10000000
+	wait := sync.WaitGroup{}
+	wait.Add(3)
+
+	go func() {
+		defer wait.Done()
+		for i:=0; i<iteration/2; i++ {
+			q.Enqueue(i)
+		}
+	}()
+
+	go func() {
+		defer wait.Done()
+		for i:=0; i<iteration/2; i++ {
+			q.Enqueue(i)
+		}
+	}()
+
+	go func() {
+		defer wait.Done()
+		for i:=0; i<iteration; i++ {
+			q.Dequeue()
+		}
+	}()
+
+	wait.Wait()
 }
