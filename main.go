@@ -31,7 +31,7 @@ type HashSet interface {
 	// Determines whether a HashSet object contains the specified element.
 	Contains(item string) bool
 
-	// Allow using custom hash function.
+	// Sets custom hash function.
 	SetHashFunction(func(string) int)
 
 	// Gets the number of elements that are contained in a HashSet.
