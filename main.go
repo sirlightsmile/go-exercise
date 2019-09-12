@@ -1,5 +1,9 @@
 package main
 
+import (
+	"fmt"
+)
+
 //
 // Implement string HashSet
 //
@@ -49,10 +53,203 @@ type HashSet interface {
 	resize()
 }
 
+type Bucket struct {
+	node *Node
+}
+
+func (b Bucket) GetAllNode() []*Node {
+	data := []*Node{}
+
+	if b.node != nil {
+		data = append(data, b.node)
+
+		node := b.node.next
+		for {
+			if node == nil {
+				break
+			}
+
+			data = append(data, node)
+			node = node.next
+		}
+	}
+
+	return data
+}
+
+func (b Bucket) GetDataFromAllNode() []string {
+	data := []string{}
+
+	if b.node != nil {
+		data = append(data, b.node.data)
+
+		node := b.node.next
+		for {
+			if node == nil {
+				break
+			}
+
+			data = append(data, node.data)
+			node = node.next
+		}
+	}
+
+	return data
+}
+
+func (b Bucket) NodeCount() int {
+	count := 0
+	node := b.node
+	for {
+		if node == nil {
+			break
+		}
+		count++
+		node = node.next
+	}
+
+	return count
+}
+
+type Node struct {
+	data string
+	prev *Node
+	next *Node
+}
+
+type MyHashSet struct {
+	buckets  []Bucket
+	hashFunc func(string) int
+}
+
+func (hs *MyHashSet) Add(item string) bool {
+	bucket := hs.getBucket(item)
+
+	if bucket.node != nil {
+
+		nodes := bucket.GetAllNode()
+		var lastNode *Node
+		for _, v := range nodes {
+			if v.data == item {
+				//duplicate
+				return false
+			} else if v.next == nil {
+				lastNode = v
+			}
+		}
+
+		newNode := Node{
+			data: item,
+			prev: lastNode,
+			next: nil,
+		}
+
+		lastNode.next = &newNode
+	} else {
+		bucket.node = &Node{
+			data: item,
+			prev: nil,
+			next: nil,
+		}
+	}
+
+	if hs.Count() > hs.BucketCount() {
+		hs.resize()
+	}
+
+	return true
+}
+
+func (hs *MyHashSet) Remove(item string) bool {
+	bucket := hs.getBucket(item)
+
+	for _, v := range bucket.GetAllNode() {
+		if v.data == item {
+			if v.prev != nil {
+				v.prev.next = v.next
+			} else {
+				bucket.node = nil
+			}
+			return true
+		}
+	}
+
+	return false
+}
+
+func (hs *MyHashSet) Contains(item string) bool {
+	bucket := hs.getBucket(item)
+
+	for _, v := range bucket.GetAllNode() {
+		if v.data == item {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (hs *MyHashSet) SetHashFunction(function func(string) int) {
+	hs.hashFunc = function
+}
+
+func (hs *MyHashSet) Count() int {
+	count := 0
+	for _, v := range hs.buckets {
+		count += v.NodeCount()
+	}
+	return count
+}
+
+func (hs *MyHashSet) BucketCount() int {
+	return len(hs.buckets)
+}
+
+func (hs *MyHashSet) Clear() {
+	hs.buckets = make([]Bucket, initialBucketSize)
+}
+
+func (hs *MyHashSet) resize() {
+	allData := hs.getAllData()
+	size := hs.BucketCount() * 2
+	hs.buckets = make([]Bucket, size)
+
+	fmt.Println("resize ", size)
+
+	for _, s := range allData {
+		hs.Add(s)
+	}
+}
+
+func (hs *MyHashSet) getAllData() []string {
+	allData := []string{}
+	for _, b := range hs.buckets {
+		data := b.GetDataFromAllNode()
+		if len(data) > 0 {
+			allData = append(allData, data...)
+		}
+	}
+
+	return allData
+}
+
+func (hs *MyHashSet) getBucket(item string) *Bucket {
+	hash := hs.hashFunc(item)
+	index := hash % hs.BucketCount()
+	bucket := &hs.buckets[index]
+
+	return bucket
+}
+
 const initialBucketSize = 1
 
 func NewHashSet() HashSet {
-	return nil
+	return &MyHashSet{
+		buckets: make([]Bucket, initialBucketSize),
+		hashFunc: func(string) int {
+			return 0
+		},
+	}
 }
 
 func main() {
